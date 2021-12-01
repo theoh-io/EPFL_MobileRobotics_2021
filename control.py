@@ -1,20 +1,5 @@
 #import needed
 import time
-<<<<<<< Updated upstream
-from Thymio import Thymio
-
-
-#needed variables definition
-#translation
-forward_time=1
-run_speed=100
-#rotation
-rot_time=1
-rot_speed=100
-
-#motion functions
-def forward(forward_time):
-=======
 import numpy as np
 from Thymio import Thymio
 
@@ -39,17 +24,11 @@ coeff_rotspeed=1
 def forward(next,actual):
     dist=np.sqrt(np.sum(np.square(next-actual)))
     forward_time=(dist*coeff_dist)/(run_speed*coeff_speed)
->>>>>>> Stashed changes
     th.set_var("motor.left.target",run_speed)
     th.set_var("motor.right.target",run_speed)
     time.sleep(forward_time)
     stopmotors()
 
-<<<<<<< Updated upstream
-#def turnleft():
-
-#def turnright():
-=======
 #can be optimised in order to choose which rotation direction is the shortest
 def turn(next,actual,actual_angle):
     direction=next-actual
@@ -64,7 +43,6 @@ def turn(next,actual,actual_angle):
         th.set_var("motor.right.target",2**16-rot_speed)
     time.sleep(rot_time)
     stopmotors()
->>>>>>> Stashed changes
 
 def stopmotors():
     th.set_var("motor.left.target", 0)
