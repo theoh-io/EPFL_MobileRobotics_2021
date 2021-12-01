@@ -1,7 +1,13 @@
+"""
+TODO: calibrate the coefficient for translation speed and rot
+test the simple controller
+switch to PID/ASTOLFI
+"""
+
 #import needed
-import time
 import numpy as np
-from Thymio import Thymio
+from tdmclient import ClientAsync
+
 
 #inputs
 #from global nav
@@ -21,29 +27,50 @@ rot_speed=100
 coeff_rotspeed=1
 
 #motion functions
+
+#low level functions
+def motors(left, right):
+    return {
+        "motor.left.target": [left],
+        "motor.right.target": [right],
+    }
+
+
+#middle level function
 def forward(next,actual):
-    dist=np.sqrt(np.sum(np.square(next-actual)))
+    direction=np.subtract(next,actual)
+    dist=np.sqrt(np.sum(np.square(direction)))
     forward_time=(dist*coeff_dist)/(run_speed*coeff_speed)
-    th.set_var("motor.left.target",run_speed)
-    th.set_var("motor.right.target",run_speed)
-    time.sleep(forward_time)
+    aw(node.set_variables(motors(run_speed,run_speed)))
+    client.sleep(forward_time)
     stopmotors()
 
-#can be optimised in order to choose which rotation direction is the shortest
+
 def turn(next,actual,actual_angle):
-    direction=next-actual
-    new_angle=np.atan2(direction)
-    angle_diff=new_angle-actual_angle #in radians
+    global node
+    #should we use the circular notation for negative: 2**16-??
+    direction=np.subtract(next,actual)
+    new_angle=np.arctan2(direction[0],direction[1])
+    """"
+    if((direction[0])and(not direction[1])):
+        new_angle=np.arctan2(direction,(0,0))[0]
+    elif((not direction[0])and(not direction[1])):
+        new_angle=np.arctan2(direction,(0,0))[1]
+    elif(direction[0] and direction[1]):
+        new_angle=np.arctan2(direction,(0,0))[2]
+    elif((not direction[0])and(direction[1])):
+        new_angle=np.arctan2(direction,(0,0))[3]
+    """
+    angle_diff=np.degrees(new_angle-actual_angle) #in radians
     rot_time=(angle_diff)/(rot_speed*coeff_rotspeed)
     if(angle_diff>0):
-        th.set_var("motor.left.target",2**16-rot_speed)
-        th.set_var("motor.right.target",rot_speed)
+        aw(node.set_variables(motors(-rot_speed,rot_speed)))
+        client.sleep(rot_time)
     elif(angle_diff<0):
-        th.set_var("motor.left.target",rot_speed)
-        th.set_var("motor.right.target",2**16-rot_speed)
-    time.sleep(rot_time)
+        aw(node.set_variables(motors(rot_speed,-rot_speed)))
+        client.sleep(rot_time)
     stopmotors()
 
 def stopmotors():
-    th.set_var("motor.left.target", 0)
-    th.set_var("motor.right.target", 0)
+    global node
+    aw(node.set_variables(motors(0,0)))
