@@ -21,9 +21,9 @@ coeff_dist=dist_coord
 
 
 #rotation
-#rot_coeff=
-rot_speed=100
-coeff_rotspeed=1
+#temps pour faire 1 tour: 10s => vitesse angulaire=360/10
+rot_motor_speed=100
+rot_real_speed=36
 
 #motion functions
 
@@ -40,6 +40,12 @@ def set_motors(left,right,node):
 
 def stopmotors(node):
     aw(node.set_variables(motors(0,0)))
+
+def read_motors_speed(node,client):
+    aw(node.wait_for_variables({"motor.left.speed","motor.right.speed"}))
+    aw(client.sleep(0.3))
+    speed=[node.v.motor.left.speed, node.v.motor.right.speed]
+    return speed
 
 
 #high level function
@@ -70,25 +76,22 @@ def turn(next,actual,actual_angle, node, client):
         new_angle=np.arctan2(direction,(0,0))[3]
     """
     angle_diff=np.degrees(new_angle-actual_angle) #in radians
-    rot_time=(angle_diff)/(rot_speed*coeff_rotspeed)
+    rot_time=(angle_diff)/(rot_real_speed)
     if(angle_diff>0):
-        aw(node.set_variables(motors(-rot_speed,rot_speed)))
+        aw(node.set_variables(motors(-rot_motor_speed,rot_motor_speed)))
         aw(client.sleep(rot_time))
     elif(angle_diff<0):
-        aw(node.set_variables(motors(rot_speed,-rot_speed)))
+        aw(node.set_variables(motors(rot_motor_speed,-rot_motor_speed)))
         aw(client.sleep(rot_time))
     stopmotors(node)
 
+def navigate(next,actual,actual_angle, node, client):
+    turn(next,actual,actual_angle, node, client)
+    forward(next,actual, node, client)
 
-def read_motors_speed(node,client):
-    aw(node.wait_for_variables({"motor.left.speed","motor.right.speed"}))
-    aw(client.sleep(0.3))
-    speed=[node.v.motor.left.speed, node.v.motor.right.speed]
-    return speed
-
-#calibration: rotate until on itself
+#calibration: just rotate on itself
 def calib_rot(node,client):
-    aw(node.set_variables(motors(-rot_speed,rot_speed)))
+    aw(node.set_variables(motors(-rot_motor_speed,rot_motor_speed)))
  
 
     
