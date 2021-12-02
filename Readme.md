@@ -11,7 +11,20 @@
 
 ### Overview
 
-This project aims to combine vision, path planning, local navigation, and filtering to maneuver a Thymio robot on a map towards a goal.
+This project combines vision, path planning, local navigation, and filtering to control a Thymio robot on a map towards a goal.
 
-For the implementation, the image of the experimental site is first captured by the webcam. The necessary map information, including the robot pose, map, static obstacles, and the goal position, is extracted in a real-time fashion by utilizing the classic image processing techniques. Afterward, the Visibility Graph algorithm computes the optimal path. It sends the instructions for the global controller of the Thymio robot, which gives instructions to the motors to follow the optimal path. If Thymio detects an obstacle ahead via the horizontal proximity sensors, local navigation will take over the robot's movement to avoid collisions.
+For the implementation: the image of the experimental environment is first captured by the webcam. The necessary map information, including the robot pose, map, static obstacles, and the goal position, is then extracted in a real-time fashion by using the classic image processing techniques. Afterward, the Visibility Graph algorithm computes the optimal path. It sends the instructions for the global controller of the Thymio robot, which gives instructions to the motors to follow the optimal path. If Thymio detects an obstacle ahead via the proximity sensors, local navigation will take over the robot's movement to avoid collisions.
+
+### Demo
+
+|                                    |                    |
+| ---------------------------------- | ------------------ |
+| Test                               | Demo               |
+| Image Processing from Webcam       | ![](./gifs/boston) |
+| Global Navigation                  | ![](./gifs/gif)    |
+| Local Navigation                   | ![](./gifs/gif)    |
+| Navigation with Kalman             | ![](./gifs/gif)    |
+
+**The demo video is available at [`MobileRob_Demo_Video.mp4`](https://www.youtube.com/watch?v=dQw4w9WgXcQ).**
+
 
