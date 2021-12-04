@@ -25,6 +25,14 @@ coeff_dist=dist_coord
 rot_motor_speed=100
 rot_real_speed=36
 
+#coefficients for the Astolfi controller
+r=0.02 #need to mesure more precisely
+l=0.04 #need to be measured more precisely
+kp=2 #>0
+ka=0.2  #must be > kp
+kb=-0.1 #<0
+
+
 #motion functions
 
 #low level functions
@@ -47,6 +55,8 @@ def read_motors_speed(node,client):
     speed=[node.v.motor.left.speed, node.v.motor.right.speed]
     return speed
 
+#def read_globalframe():
+#can be useful to pass to filtering
 
 #high level function
 def forward(next,actual,node, client):
@@ -64,7 +74,7 @@ def forward(next,actual,node, client):
 def turn(next,actual,actual_angle, node, client):
     #should we use the circular notation for negative: 2**16-??
     direction=np.subtract(next,actual)
-    new_angle=np.arctan2(direction[0],direction[1])
+    new_angle=np.degrees(np.arctan2(direction[1],direction[0])) #first argument is y !!
     """"
     if((direction[0])and(not direction[1])):
         new_angle=np.arctan2(direction,(0,0))[0]
@@ -75,13 +85,13 @@ def turn(next,actual,actual_angle, node, client):
     elif((not direction[0])and(direction[1])):
         new_angle=np.arctan2(direction,(0,0))[3]
     """
-    angle_diff=np.degrees(new_angle-actual_angle) #in radians
+    angle_diff=new_angle-actual_angle #in radians
     rot_time=(angle_diff)/(rot_real_speed)
     if(angle_diff>0):
-        aw(node.set_variables(motors(-rot_motor_speed,rot_motor_speed)))
+        set_motors(-rot_motor_speed,rot_motor_speed, node)
         aw(client.sleep(rot_time))
     elif(angle_diff<0):
-        aw(node.set_variables(motors(rot_motor_speed,-rot_motor_speed)))
+        set_motors(rot_motor_speed,-rot_motor_speed, node)
         aw(client.sleep(rot_time))
     stopmotors(node)
 
@@ -94,4 +104,17 @@ def calib_rot(node,client):
     aw(node.set_variables(motors(-rot_motor_speed,rot_motor_speed)))
  
 
+def astolfi(actual_pos, goal_pos, actual_angle, node):
+    delta=np.subtract(goal_pos,actual_pos)
+    pho=np.sqrt(np.sum(np.square(delta)))
+    alpha=-actual_angle + np.degrees(np.arctan2(delta[1],delta[0]))
+    beta=-actual_angle-alpha
+    v=kp*pho
+    omega=ka*alpha+kb*beta
+    right_speed=(l*omega+v)/r
+    left_speed=(v-l*omega)/r
+    left_speed=int(left_speed)
+    print(left_speed)
+    right_speed=int(right_speed)
+    set_motors(left_speed, right_speed, node)
     
