@@ -94,6 +94,8 @@ def turn(next,actual,actual_angle, node, client):
         set_motors(rot_motor_speed,-rot_motor_speed, node)
         aw(client.sleep(rot_time))
     stopmotors(node)
+    return new_angle
+
 
 def navigate(next,actual,actual_angle, node, client):
     turn(next,actual,actual_angle, node, client)
