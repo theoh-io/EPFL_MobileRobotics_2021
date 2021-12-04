@@ -21,9 +21,9 @@ coeff_dist=dist_coord
 
 
 #rotation
-#temps pour faire 1 tour: 10s => vitesse angulaire=360/10
+#temps pour faire 1 tour: 9,5s => vitesse angulaire=360/9,5
 rot_motor_speed=100
-rot_real_speed=36
+rot_real_speed=37.895
 
 #coefficients for the Astolfi controller
 r=0.02 #need to mesure more precisely
