@@ -8,68 +8,85 @@ import geopandas as gpd
 from geopandas import GeoSeries
 from shapely.geometry import Polygon, Point, LineString
 
-# Set of random polygons TO BE CHANGED 
-p1 = Polygon([(1, 1), (2, 1), (2, 2), (1, 2)])
-p2 = Polygon([(3, 0), (4, 0), (5, 2), (5, 4), (3, 3)])
-p3 = Polygon([(6, 6), (5, 5), (6, 5)])
+def plot_geometric_data(g):
+    print(g,"\n")
+    g.plot('Blues') 
 
-# Geometric graph of the obstacles as given by the vision analysis
-g = GeoSeries([p1, p2, p3])
-print(g)
-g.plot()
+def obstacles_to_polygons(list_obstacles):
+    
+    # Convert list of obstacles (list of vectors) to list of gometric polygons 
+    list_polygons = []
+    for obstacle in list_obstacles:
+        list_polygons.append(Polygon(obstacle))
+    
+    # Create Geometric graph of the obstacles as given by the vision analysis
+    g = GeoSeries(list_polygons)
+    
+    return g
 
-# Geometric graph of the obstacles with the margin
-margin=0.1
-g=g.buffer(margin,join_style=2) 
-print(g)
-g.plot()
 
-# Visibility graph created from the geometric graph
-polygons = []
-for poly in g:
-    print(poly)
-    x, y = poly.exterior.coords.xy
-    polygon_vg = []
-    for i in range(len(x)):
-        polygon_vg.append(vg.Point(x[i],y[i]))
-    polygons.append(polygon_vg)
+def polygons_add_margin(g,margin):
+    # Geometric graph of the obstacles with the margin
+    # margin=0.1
+    g=g.buffer(margin,join_style=2) 
+    return g
 
-visgraph = vg.VisGraph()
-visgraph.build(polygons)
-visgraph.save('graph_test')
 
-print("\n Visibility graph input: ", polygons)
+def polygons_to_VisibilityGraph(g):
+    # Visibility graph created from the geometric graph
+    polygons = []
+    for poly in g:
+        x, y = poly.exterior.coords.xy
+        polygon_vg = []
+        for i in range(len(x)):
+            polygon_vg.append(vg.Point(x[i],y[i]))
+        polygons.append(polygon_vg)
 
-# Path planning with visibility graph, start and goal
-start_point = vg.Point(0.0, 0.0)  
-end_point = vg.Point(6.0, 6.0)
-shortest_path = visgraph.shortest_path(start_point, end_point)
-print(shortest_path)
+    visgraph = vg.VisGraph()
+    visgraph.build(polygons)
+    
+    print("\n Visibility graph input: ", polygons,"\n")
+    
+    return visgraph
 
-# Path distance
-path_distance = 0
-prev_point = shortest_path[0]
-for point in shortest_path[1:]:
-    path_distance += math.sqrt(pow(point.x - prev_point.x, 2)+pow(point.y - prev_point.y, 2))
-    prev_point = point
-print('Shortest path distance: {}'.format(path_distance))
+def save_VisibilityGraph(visgraph,visgraph_name):
+    visgraph.save(visgraph_name)
 
-# Geometric global path of the path found with visibility graph
-path = []
-for i in range(len(shortest_path)):
-    path.append(Point(shortest_path[i].x,shortest_path[i].y))
+def point_to_VisibilityGraph(point):
+    #example vg.Point(0.0, 0.0)
+    point = vg.Point(point[0],point[1])
+    
+    return point
 
-path = GeoSeries(path)
+    
+def VisibilityGraph_shortest_path(visgraph, start_point, end_point):
+    # Path planning with visibility graph, start and goal
+    start_point=point_to_VisibilityGraph(start_point)
+    end_point=point_to_VisibilityGraph(end_point)
+    shortest_path = visgraph.shortest_path(start_point, end_point)
+    
+    return shortest_path
 
-print(path)
-path.plot()
+def path_distance(shortest_path):
+    # Path distance
+    path_distance = 0
+    prev_point = shortest_path[0]
+    for point in shortest_path[1:]:
+        path_distance += math.sqrt(pow(point.x - prev_point.x, 2)+pow(point.y - prev_point.y, 2))
+        prev_point = point
+    print('Shortest path distance: {}'.format(path_distance),"\n")
+    
+    return path_distance
 
-# Loading visibility graph from previous graph
-visgraph2 = vg.VisGraph()
-visgraph2.load('graph_test')
+def ShortestPath_to_geometric(shortest_path):
+    # Geometric global path of the path found with visibility graph
+    path = []
+    for i in range(len(shortest_path)):
+        path.append(Point(shortest_path[i].x,shortest_path[i].y))
+    path = GeoSeries(path)
+    return path
 
-# Path planning with visibility graph, start and goal
-start_point = vg.Point(0.0, 0.0)   # Start
-end_point = vg.Point(10.0, 10.0) # Goal
-shortest = visgraph2.shortest_path(start_point, end_point)
-print(shortest)
+def load_VisibilityGraph(visgraph_name):
+    # Loading visibility graph from previous graph
+    visgraph2 = vg.VisGraph()
+    visgraph2.load(visgraph_name)
