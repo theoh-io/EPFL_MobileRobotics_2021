@@ -10,7 +10,7 @@ from shapely.geometry import Polygon, Point, LineString
 
 def plot_geometric_data(g):
     print(g,"\n")
-    g.plot('Blues') 
+    g.plot('Reds') 
 
 def obstacles_to_polygons(list_obstacles):
     
@@ -90,3 +90,9 @@ def load_VisibilityGraph(visgraph_name):
     # Loading visibility graph from previous graph
     visgraph2 = vg.VisGraph()
     visgraph2.load(visgraph_name)
+    
+def geometric_path_to_vector(path):
+    check_points=[]
+    for i in range(len(path)):
+        check_points.append([path.x[i],path.y[i]])
+    return check_points
