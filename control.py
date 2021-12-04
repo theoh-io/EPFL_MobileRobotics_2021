@@ -55,6 +55,11 @@ def read_motors_speed(node,client):
     speed=[node.v.motor.left.speed, node.v.motor.right.speed]
     return speed
 
+def angle2points(next, actual, node):
+    direction=np.subtract(next,actual)
+    new_angle=np.degrees(np.arctan2(direction[1],direction[0]))
+    return new_angle
+
 #def read_globalframe():
 #can be useful to pass to filtering
 
@@ -85,7 +90,7 @@ def turn(next,actual,actual_angle, node, client):
     elif((not direction[0])and(direction[1])):
         new_angle=np.arctan2(direction,(0,0))[3]
     """
-    angle_diff=new_angle-actual_angle #in radians
+    angle_diff=new_angle-actual_angle 
     rot_time=(abs(angle_diff))/(rot_real_speed)
     if(angle_diff>0):
         set_motors(-rot_motor_speed,rot_motor_speed, node)
@@ -94,7 +99,6 @@ def turn(next,actual,actual_angle, node, client):
         set_motors(rot_motor_speed,-rot_motor_speed, node)
         aw(client.sleep(rot_time))
     stopmotors(node)
-    return new_angle
 
 
 def navigate(next,actual,actual_angle, node, client):
