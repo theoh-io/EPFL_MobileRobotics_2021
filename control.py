@@ -86,7 +86,7 @@ def turn(next,actual,actual_angle, node, client):
         new_angle=np.arctan2(direction,(0,0))[3]
     """
     angle_diff=new_angle-actual_angle #in radians
-    rot_time=(angle_diff)/(rot_real_speed)
+    rot_time=(abs(angle_diff))/(rot_real_speed)
     if(angle_diff>0):
         set_motors(-rot_motor_speed,rot_motor_speed, node)
         aw(client.sleep(rot_time))
