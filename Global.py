@@ -96,3 +96,25 @@ def geometric_path_to_vector(path):
     for i in range(len(path)):
         check_points.append([path.x[i],path.y[i]])
     return check_points
+
+def global_pathplanning(start_point,end_point,list_obstacles,plot,margin):
+    
+    g = obstacles_to_polygons(list_obstacles)
+    plot_geometric_data(g)
+
+    g = polygons_add_margin(g,margin)
+    plot_geometric_data(g)
+
+    visgraph = polygons_to_VisibilityGraph(g)
+
+    shortest_path = VisibilityGraph_shortest_path(visgraph, start_point, end_point)
+
+    distance = path_distance(shortest_path)
+
+    path = ShortestPath_to_geometric(shortest_path)
+    g = g.geometry.append(path.geometry)
+
+    plot_geometric_data(path)
+    plot_geometric_data(g)
+    
+    return path
