@@ -97,7 +97,7 @@ def geometric_path_to_vector(path):
         check_points.append([path.x[i],path.y[i]])
     return check_points
 
-def global_pathplanning(start_point,end_point,list_obstacles,plot,margin):
+def global_pathplanning(start_point,end_point,list_obstacles,margin):
     
     g = obstacles_to_polygons(list_obstacles)
     plot_geometric_data(g)
