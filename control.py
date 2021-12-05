@@ -12,9 +12,9 @@ from tdmclient import ClientAsync, aw
 
 #needed variables definition
 #motors speed no unit
-motor_speed=100
+motor_speed=300
 #translation: speed approx 3,25 [cm/s]
-real_speed=3.25   #21.73913043478261
+real_speed=8.8   #21.73913043478261
 #coeff linking thymio dist to real [coord/cm] (suppose 1 coord = 20cm)
 dist_coord=10 # [cm/coord] coord thymio ref = 10cm
 coeff_dist=dist_coord
