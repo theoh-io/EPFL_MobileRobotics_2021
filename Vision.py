@@ -17,6 +17,7 @@ lower_cyan =[170,50,50]
 upper_cyan =[180,255,255]
 
 
+
 #low level functions (appelées a l'intérieur d'autres fonctions)
 def order_points(pts):
     """
@@ -48,6 +49,7 @@ def order_points(pts):
     if pts[2][0] > pts[3][0]:
         pts[2], pts[3] = pts[3], pts[2]
     return pts
+
 
 
 def four_point_transform(image, ordered_pts):
@@ -82,6 +84,8 @@ def four_point_transform(image, ordered_pts):
 	# return the warped image
 	return warped
 
+
+
 def color_mask(imgRGB, color):
     img_hsv = cv2.cvtColor(imgRGB, cv2.COLOR_RGB2HSV)
 
@@ -98,6 +102,8 @@ def color_mask(imgRGB, color):
     output_hsv[np.where(mask==0)] = 0
     
     return output_hsv
+
+
 
 #high level functions (celles qu'on appelle dans main)
 def img_calibration(img):
@@ -124,6 +130,8 @@ def img_calibration(img):
     corner_points=order_points(corner_points)
     warpedimg=four_point_transform(img,corner_points)
     return warpedimg
+
+
 
 def obstacle_detection():
     # Reading image
@@ -154,3 +162,51 @@ def obstacle_detection():
                                     0.009 * cv2.arcLength(cnt, True), True)
         
     return polygons
+
+
+
+def takePicture(): 
+    # 1. Create an object. Zero for external camera
+    video = cv2.VideoCapture(0)
+    # 3. Create a frame object
+    check, frame = video.read()
+        
+    # 4. Show the frame!
+    cv2.imshow("Capturing picture",frame)
+
+    # 5. for press any key to out (milisec)
+    cv2.waitKey(0)
+
+    # 2. Shutdown camera
+    video.release()
+    return frame
+
+
+
+def playVideo(): 
+    # 1. Create an object. Zero for external camera
+    video = cv2.VideoCapture(0)
+    a = 0
+    video_imgs = []
+    while True:
+        a = a + 1
+        # 3. Create a frame object
+        check, frame = video.read()
+        
+        # all frames
+        video_imgs.append(frame) ## si on veut toutes les images de la video 
+            
+        # 4. Show the frame!
+        cv2.imshow("Capturing Video",frame)
+
+        # 7. for playing
+        key = cv2.waitKey(1)
+        if key == ord('q') :
+            break
+            
+    # 2. Shutdown camera
+    video.release()
+
+    cv2.destroyAllWindows
+    
+    return video_imgs
