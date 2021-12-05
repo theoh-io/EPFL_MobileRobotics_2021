@@ -82,7 +82,22 @@ def four_point_transform(image, ordered_pts):
 	# return the warped image
 	return warped
 
+def color_mask(imgRGB, color):
+    img_hsv = cv2.cvtColor(imgRGB, cv2.COLOR_RGB2HSV)
 
+    if color == 'red':
+        mask = cv2.inRange(img_hsv, lower_red, upper_red)
+    if color == 'green':
+        mask = cv2.inRange(img_hsv, lower_green, upper_green)
+    if color == 'cyan':
+        mask = cv2.inRange(img_hsv, lower_cyan, upper_cyan)
+    if color == 'pink':
+        mask = cv2.inRange(img_hsv, lower_cyan, upper_cyan)
+        
+    output_hsv = img_hsv.copy()
+    output_hsv[np.where(mask==0)] = 0
+    
+    return output_hsv
 
 #high level functions (celles qu'on appelle dans main)
 def img_calibration(img):
@@ -102,7 +117,7 @@ def img_calibration(img):
     for i in range(len(contours)):
         if (cv2.contourArea(contours[i]) > 200):
             mom = cv2.moments(contours[i])
-            corner_points.append((int(mom['m10'] / mom['m00']), int(mom['m01'] / mom['m00'])))
+            corner_points.append((int(mom['m10'] / mom['m00']), int(mom['m01'] / mom['m00']))) #centre des carrés
     if len(corner_points) != 4:
         print("failure in identifying corners")
         print(corner_points)
