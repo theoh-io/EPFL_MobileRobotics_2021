@@ -99,7 +99,7 @@ def globnav(checkpoints,starting_angle,node,client):
     for i in range(len(checkpoints)-1):   
         navigate(checkpoints[i+1], checkpoints[i], angle, node, client)
         angle=angle2points(checkpoints[i+1],checkpoints[i],node)
-    stopmotors()
+    stopmotors(node)
 
 
 #calibration: just rotate on itself
