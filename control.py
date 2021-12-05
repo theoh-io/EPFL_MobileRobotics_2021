@@ -78,18 +78,7 @@ def forward(next,actual,node, client):
 
 def turn(next,actual,actual_angle, node, client):
     #should we use the circular notation for negative: 2**16-??
-    direction=np.subtract(next,actual)
-    new_angle=np.degrees(np.arctan2(direction[1],direction[0])) #first argument is y !!
-    """"
-    if((direction[0])and(not direction[1])):
-        new_angle=np.arctan2(direction,(0,0))[0]
-    elif((not direction[0])and(not direction[1])):
-        new_angle=np.arctan2(direction,(0,0))[1]
-    elif(direction[0] and direction[1]):
-        new_angle=np.arctan2(direction,(0,0))[2]
-    elif((not direction[0])and(direction[1])):
-        new_angle=np.arctan2(direction,(0,0))[3]
-    """
+    new_angle=angle2points(next, actual, node)#first argument is y !!
     angle_diff=new_angle-actual_angle 
     rot_time=(abs(angle_diff))/(rot_real_speed)
     if(angle_diff>0):
@@ -104,6 +93,14 @@ def turn(next,actual,actual_angle, node, client):
 def navigate(next,actual,actual_angle, node, client):
     turn(next,actual,actual_angle, node, client)
     forward(next,actual, node, client)
+
+def globnav(checkpoints,starting_angle,node,client):
+    angle=starting_angle
+    for i in range(len(checkpoints)-1):   
+        navigate(checkpoints[i+1], checkpoints[i], angle, node, client)
+        angle=angle2points(checkpoints[i+1],checkpoints[i],node)
+    stopmotors()
+
 
 #calibration: just rotate on itself
 def calib_rot(node,client):
