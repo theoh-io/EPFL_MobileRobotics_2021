@@ -100,10 +100,10 @@ def geometric_path_to_vector(path):
 def global_pathplanning(start_point,end_point,list_obstacles,margin):
     
     g = obstacles_to_polygons(list_obstacles)
-    plot_geometric_data(g)
+    #plot_geometric_data(g)
 
     g = polygons_add_margin(g,margin)
-    plot_geometric_data(g)
+    #plot_geometric_data(g)
 
     visgraph = polygons_to_VisibilityGraph(g)
 
@@ -114,7 +114,7 @@ def global_pathplanning(start_point,end_point,list_obstacles,margin):
     path = ShortestPath_to_geometric(shortest_path)
     g = g.geometry.append(path.geometry)
 
-    plot_geometric_data(path)
+    #plot_geometric_data(path)
     plot_geometric_data(g)
     
     return path
