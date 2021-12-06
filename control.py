@@ -6,7 +6,6 @@ switch to PID/ASTOLFI
 
 #import needed
 import numpy as np
-import time
 from tdmclient import ClientAsync, aw
 
 
@@ -51,9 +50,15 @@ def stopmotors(node):
 
 def read_motors_speed(node,client):
     aw(node.wait_for_variables({"motor.left.speed","motor.right.speed"}))
-    aw(client.sleep(0.3))
+    aw(client.sleep(0.1))
     speed=[node.v.motor.left.speed, node.v.motor.right.speed]
     return speed
+
+def read_prox_sensors(node,client):
+    aw(node.wait_for_variables({"prox.horizontal"}))
+    aw(client.sleep(0.1))
+    prox=node.v.prox.horizontal
+    return prox
 
 def angle2points(next, actual, node):
     direction=np.subtract(next,actual)
