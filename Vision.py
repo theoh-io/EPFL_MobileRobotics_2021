@@ -120,6 +120,54 @@ def color_mask(imgRGB, color):
     
     return output_hsv
 
+def detectCircle(imgRGB,color):
+    coord = []
+    color_infos = (0,255,255)
+    
+    if color == 'red':
+        lower=np.array([170,50,50])
+        upper=np.array([240,255,255])
+    if color == 'yellow':
+        lower=np.array([10,40,40])
+        upper=np.array([40,255,255])
+    if color == 'cyan':
+        lower=np.array([80,50,50])
+        upper=np.array([100,255,255])
+    
+    img_hsv = cv2.cvtColor(imgRGB, cv2.COLOR_RGB2HSV)
+    mask = cv2.inRange(img_hsv, lower, upper)
+    img_hsv = cv2.blur(img_hsv,(7,7))
+    mask = cv2.erode(mask, None, iterations = 4)
+    mask = cv2.dilate(mask, None, iterations = 4)
+    image2 = cv2.bitwise_and(imgRGB, imgRGB, mask=mask)
+    elements,_ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    
+    if len(elements) > 0:
+        for i in range(0,len(elements)):
+            c = elements[i] 
+            ((x,y),rayon) = cv2.minEnclosingCircle(c)
+            coord.append((x,y,rayon))
+            if rayon>0:
+                cv2.circle(image2,(int(x),int(y)), int(rayon), color_infos, 2)
+    return coord
+
+def angle_between(p1, p2):
+    p = [p1[0]-p2[0],p1[1]-p2[1]]
+    p[1] = -p[1]
+    ang = np.arctan2(p[1],p[0])
+    return np.rad2deg(ang)
+
+def directionTymio(imgRGB):
+    coordTymio = detectCircle(imgRGB,'yellow')
+    pts = sorted(coordTymio, key=lambda x: x[2])
+    print(pts)
+    top = (pts[0][0],pts[0][1])
+    
+    bottom = (pts[1][0],pts[1][1])
+    print(top,bottom)
+    direction = angle_between(top,bottom)
+    return [bottom,direction]
+
 
 #high level functions (celles qu'on appelle dans main)
 def img_calibration(img):
