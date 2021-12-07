@@ -1,4 +1,4 @@
-def update_state(state,obstThrL,obstThrH):
+def update_state(state,obstThrL,obstThrH, obst):
     if state == 0: 
         # switch from goal tracking to obst avoidance if obstacle detected
         if (obst[0] > obstThrH):
