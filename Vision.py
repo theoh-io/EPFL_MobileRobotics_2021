@@ -74,7 +74,7 @@ def order_points(pts):
 def four_point_transform(image, ordered_pts):
 	# obtain a consistent order of the points and unpack them
 	# individually
-    (tl, tr, br, bl) = ordered_pts
+    (tl, tr, bl, br) = ordered_pts
 	# compute the width of the new image, which will be the
 	# maximum distance between bottom-right and bottom-left
 	# x-coordiates or the top-right and top-left x-coordinates
