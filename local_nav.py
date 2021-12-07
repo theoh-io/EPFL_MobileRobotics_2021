@@ -1,3 +1,24 @@
+def update_state(state,obstThrL,obstThrH):
+    if state == 0: 
+        # switch from goal tracking to obst avoidance if obstacle detected
+        if (obst[0] > obstThrH):
+            state = 1
+            print("change state to local")
+        elif (obst[2] > obstThrH):
+            state = 1
+            print("change state to local")
+        elif (obst[1] > obstThrH):
+            state = 1
+            print("change state to local")
+    elif state == 1:
+        if obst[0] < obstThrL:
+            if obst[2] < obstThrL:
+                # switch from obst avoidance to goal tracking if obstacle got unseen
+                state = 0
+                print("change state to global")
+    
+    return state
+
 def local_nav(prox_horizontal,y):
     leds_top = [30,30,30]
     
