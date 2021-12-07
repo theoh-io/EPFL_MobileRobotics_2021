@@ -116,5 +116,6 @@ def global_pathplanning(start_point,end_point,list_obstacles,margin):
 
     #plot_geometric_data(path)
     plot_geometric_data(g)
+    print("path ", path)
     
     return path

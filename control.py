@@ -116,8 +116,8 @@ def astolfi(actual_pos, goal_pos, actual_angle, node):
     right_speed=(l*omega+v)/r
     left_speed=(v-l*omega)/r
     left_speed=int(left_speed)
-    print(left_speed)
     right_speed=int(right_speed)
+    print(left_speed,right_speed)
     set_motors(left_speed, right_speed, node)
     
 #non Blocking version of the functions
