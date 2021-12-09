@@ -45,7 +45,7 @@ def polygons_to_VisibilityGraph(g):
     visgraph = vg.VisGraph()
     visgraph.build(polygons)
     
-    print("\n Visibility graph input: ", polygons,"\n")
+    print("\nVisibility graph points: ", polygons,"\n")
     
     return visgraph
 
