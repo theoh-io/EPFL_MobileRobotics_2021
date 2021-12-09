@@ -8,9 +8,17 @@ from matplotlib import pyplot as plt
 import time
 
 
-#variables declaration
+#tuning parameters
+#corners
 iterations_erode=4
 area_size=50 #used for corner detections
+#obstacles
+area_obst_min=500
+area_obst_max=30000
+thresh_low=90
+thresh_up=255
+
+
 
 #Defining color ranges
 pink_lower=[]
@@ -136,14 +144,14 @@ def detectCircle(imgRGB,target):
     if target == 'start':
         coord = [0,0]
         lower=np.array([80,50,50])
-        upper=np.array([100,255,255])
+        upper=np.array([120,255,255])
     
     img_hsv = cv2.cvtColor(imgRGB, cv2.COLOR_RGB2HSV)
     mask = cv2.inRange(img_hsv, lower, upper)
     img_hsv = cv2.blur(img_hsv,(7,7))
     mask = cv2.erode(mask, None, iterations = 4)
     mask = cv2.dilate(mask, None, iterations = 4)
-    image2 = cv2.bitwise_and(imgRGB, imgRGB, mask=mask)
+    #image2 = cv2.bitwise_and(imgRGB, imgRGB, mask=mask)
     elements,_ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     
     if len(elements) > 0:
@@ -154,8 +162,8 @@ def detectCircle(imgRGB,target):
                 coord.append((x,y,rayon))
             else :
                 coord = [x,y]
-            if rayon>0:
-                cv2.circle(image2,(int(x),int(y)), int(rayon), color_infos, 2)
+            #if rayon>0:
+                #cv2.circle(image2,(int(x),int(y)), int(rayon), color_infos, 2)
     return coord
 
 def angle_between(p1, p2):
@@ -219,7 +227,7 @@ def obstacle_detection(img):
     
     # Converting image to a binary image 
     # (black and white only image).
-    _,threshold = cv2.threshold(img, 110, 255, 
+    _,threshold = cv2.threshold(img, thresh_low, thresh_up, 
                                 cv2.THRESH_BINARY)
     
     # Detecting shapes in image by selecting region 
@@ -235,18 +243,19 @@ def obstacle_detection(img):
         area = cv2.contourArea(cnt)
     
         # Shortlisting the regions based on there area.
-        if area > 400: 
-            approx = cv2.approxPolyDP(cnt, 
-                                    0.009 * cv2.arcLength(cnt, True), True)
-        
-            # Checking if the no. of sides of the selected region is 7.
-            if(len(approx) == 4): 
-                cv2.drawContours(img, [approx], 0, (0, 0, 255), 5)
-                for i in range (len(approx)):
-                    point=(approx[i][0][0],approx[i][0][1])
-                    polygon.append(point)
-                list_polygon.append(polygon)
-                polygon=[]      
+        if area > area_obst_min: 
+            if area < area_obst_max:
+                approx = cv2.approxPolyDP(cnt, 
+                                        0.009 * cv2.arcLength(cnt, True), True)
+            
+                # Checking if the no. of sides of the selected region is 7.
+                if(len(approx) == 4): 
+                    cv2.drawContours(img, [approx], 0, (0, 0, 255), 5)
+                    for i in range (len(approx)):
+                        point=(approx[i][0][0],approx[i][0][1])
+                        polygon.append(point)
+                    list_polygon.append(polygon)
+                    polygon=[]      
     return list_polygon
 
 
