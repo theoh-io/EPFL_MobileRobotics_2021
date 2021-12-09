@@ -14,7 +14,7 @@ def plot_geometric_data(g):
 
 def obstacles_to_polygons(list_obstacles):
     
-    # Convert list of obstacles (list of vectors) to list of gometric polygons 
+    # Convert list of obstacles (list of vectors) to list of geometric polygons 
     list_polygons = []
     for obstacle in list_obstacles:
         list_polygons.append(Polygon(obstacle))
