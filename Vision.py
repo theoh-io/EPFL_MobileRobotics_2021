@@ -5,11 +5,12 @@ import math
 import matplotlib
 from matplotlib.pyplot import imshow
 from matplotlib import pyplot as plt
+import time
 
 
 #variables declaration
-iterations_erode=6
-area_size=500 #used for corner detections
+iterations_erode=4
+area_size=50 #used for corner detections
 
 #Defining color ranges
 pink_lower=[]
@@ -18,8 +19,8 @@ lower_red = [0,50,50]
 upper_red = [10,255,255]
 lower_cyan =[170,50,50]
 upper_cyan =[180,255,255]
-green_lower=np.array([30,40,40]) #only one that we tested
-green_upper=np.array([80,255,255])
+green_lower=np.array([45,30,30])
+green_upper=np.array([90,255,255])
 
 
 
@@ -176,6 +177,7 @@ def directionThymio(imgRGB):
 #high level functions (celles qu'on appelle dans main)
 def img_calibration(img):
     #input img doit etre en rgb
+    #img=cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     img_blur = cv2.GaussianBlur(img, (7, 7), 0)
     HSV = cv2.cvtColor(img_blur, cv2.COLOR_RGB2HSV)
     mask=cv2.inRange(HSV,green_lower,green_upper)
@@ -249,20 +251,21 @@ def obstacle_detection(img):
 
 
 
-def takePicture(): 
+def takePicture(nb): 
     # 1. Create an object. Zero for external camera
-    video = cv2.VideoCapture(0)
+    #video = cv2.VideoCapture(0)
     # 3. Create a frame object
-    check, frame = video.read()
-        
+    cap = cv2.VideoCapture(nb, cv2.CAP_DSHOW)
+    for i in range(5):
+        check, frame = cap.read()
+        time.sleep(1)
+        print("frame {}".format(i))
     # 4. Show the frame!
-    cv2.imshow("Capturing picture",frame)
+    #cv2.imshow("Capturing picture",frame)
 
-    # 5. for press any key to out (milisec)
-    cv2.waitKey(0)
-
+    #frame=cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) => src empty in gaussian Blur
     # 2. Shutdown camera
-    video.release()
+    cap.release()
     return frame
 
 
