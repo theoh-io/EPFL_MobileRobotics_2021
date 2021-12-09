@@ -21,7 +21,7 @@ rot_real_speed=37.895
 #coefficients for the Astolfi controller
 r=0.02 #need to mesure more precisely
 l=0.04 #need to be measured more precisely
-kp=2 #>0
+kp=0.1  #2 #>0
 ka=0.2  #must be > kp
 kb=-0.1 #<0
 

@@ -137,20 +137,24 @@ def detectCircle(imgRGB,target):
         coord = []
         lower=np.array([10,40,40])
         upper=np.array([40,255,255])
+        nb_iterations=0
+        print('here')
     if target == 'goal':
         coord = [0,0]
         lower=np.array([170,50,50])
         upper=np.array([240,255,255])
+        nb_iterations=4
     if target == 'start':
         coord = [0,0]
         lower=np.array([80,50,50])
         upper=np.array([120,255,255])
+        nb_iterations=4
     
     img_hsv = cv2.cvtColor(imgRGB, cv2.COLOR_RGB2HSV)
     mask = cv2.inRange(img_hsv, lower, upper)
     img_hsv = cv2.blur(img_hsv,(7,7))
-    mask = cv2.erode(mask, None, iterations = 4)
-    mask = cv2.dilate(mask, None, iterations = 4)
+    mask = cv2.erode(mask, None, iterations = nb_iterations)
+    mask = cv2.dilate(mask, None, iterations = nb_iterations)
     #image2 = cv2.bitwise_and(imgRGB, imgRGB, mask=mask)
     elements,_ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     
