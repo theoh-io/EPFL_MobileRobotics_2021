@@ -18,7 +18,7 @@ lower_red = [0,50,50]
 upper_red = [10,255,255]
 lower_cyan =[170,50,50]
 upper_cyan =[180,255,255]
-green_lower=np.array([60,40,40]) #only one that we tested
+green_lower=np.array([30,40,40]) #only one that we tested
 green_upper=np.array([80,255,255])
 
 
@@ -197,6 +197,7 @@ def img_calibration(img):
         if (cv2.contourArea(contours[i]) > area_size):
             mom = cv2.moments(contours[i])
             corner_points.append((int(mom['m10'] / mom['m00']), int(mom['m01'] / mom['m00']))) #centre des carrés
+    print(len(corner_points))
     if len(corner_points) != 4:
         print("failure in identifying corners")
         print(corner_points)
