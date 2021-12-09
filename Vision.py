@@ -18,11 +18,9 @@ lower_red = [0,50,50]
 upper_red = [10,255,255]
 lower_cyan =[170,50,50]
 upper_cyan =[180,255,255]
-#green_lower=np.array([30,40,40]) #only one that we tested
-green_upper=np.array([80,255,255])
+green_lower=np.array([45,30,30])
+green_upper=np.array([90,255,255])
 
-green_lower=np.array([30,30,30]) #only one that we tested
-#green_upper=np.array([80,255,255])
 
 
 
