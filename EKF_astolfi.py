@@ -27,18 +27,25 @@ class ExtendedKalmanFilterAstolfi:
                               [0, 0, 0, 0, 0, 0, 1, 0],
                               [0, 0, 0, 0, 0, 0, 0, 1]])
 
+
         self.__H = np.matrix([[1, 0, 0, 0, 0, 0, 0, 0],
                               [0, 1, 0, 0, 0, 0, 0, 0],
                               [0, 0, 1, 0, 0, 0, 0, 0],
                               [0, 0, 0, 1, 0, 0, 0, 0],
-                              [0, 0, 0, 0, 1, 0, 0, 0]])  # matrice de mesure pour translation pure
+                              [0, 0, 0, 0, 1, 0, 0, 0]])  # matrice si thymio repéré
+        
+        self.__Hkidnap = np.matrix([[0, 0, 0, 1, 0, 0, 0, 0],
+                                    [0, 0, 0, 0, 1, 0, 0, 0]])  # matrice si thymio non repéré
 
         # à calibrer
         self.__R = np.matrix([[1, 0,   0, 0, 0],
                               [0, 1,   0, 0, 0],
                               [0, 0, 0.1, 0, 0],
-                              [0, 0,   0, 7, 0],
-                              [0, 0,   0, 0, 7]])
+                              [0, 0,   0, 3, 0],
+                              [0, 0,   0, 0, 3]])
+        
+        self.__Rkidnap = np.matrix([[1, 0],
+                              [0, 1]])
 
         # we can adjust these to get better accuracy
         self.__noise_ax = 1
@@ -52,11 +59,10 @@ class ExtendedKalmanFilterAstolfi:
         return self.__x, self.__P
 
     def current_estimate_state(self):
-        #   print("current_estimate_state")
         return self.__x
 
-    def init_state_vector(self, x, y, alpha, v, omega):
-        self.__x = np.matrix([[x, y, alpha, v, omega]]).T
+    def init_state_vector(self, posx, posy, angle, vit_roue_droite, vit_roue_gauche, vx, vy, vitesse_rota):
+        self.__x = np.matrix([[posx, posy, angle, vit_roue_droite, vit_roue_gauche,  vx, vy, vitesse_rota]]).T
 
     def set_time_stamp(self, dt):
         self.__timeStamp = dt
@@ -86,14 +92,15 @@ class ExtendedKalmanFilterAstolfi:
         e53 = alpha_cos/2
         e54 = alpha_cos/2
 
-        e62 = -alpha_cos*(NroueDroite+NroueGauche)/2
-        e63 = -alpha_sin/2
-        e64 = -alpha_sin/2
+        e62 = alpha_cos*(NroueDroite+NroueGauche)/2
+        e63 = alpha_sin/2
+        e64 = alpha_sin/2
 
         e73 = 1/(2*L_ROUE_CENTRE)
         e74 = -1/(2*L_ROUE_CENTRE)
 
         e05 = e16 = e27 = dt
+        print("temps entre samples: ", dt)
 
         self.__F = np.matrix([[1, 0,   0,   0, 0,   e05,   0,   0],
                               [0, 1,   0,   0, 0,     0, e16,   0],
@@ -104,14 +111,14 @@ class ExtendedKalmanFilterAstolfi:
                               [0, 0, e62, e63, e64,   0,   0,   0],
                               [0, 0,   0, e73, e74,   0,   0,   0]])
         # set Q
-        e00 = 0.1
-        e11 = 0.1
-        e22 = 0.1
-        e33 = 1
-        e44 = 1
-        e55 = 1
-        e66 = 1
-        e77 = 1
+        e00 = 0.01
+        e11 = 0.01
+        e22 = 0.0000001
+        e33 = 0.01
+        e44 = 0.01
+        e55 = 0.01
+        e66 = 0.01
+        e77 = 0.01
 
 
         self.__Q = np.matrix([[e00, 0, 0, 0, 0, 0, 0, 0],
@@ -130,11 +137,12 @@ class ExtendedKalmanFilterAstolfi:
         self.__x = self.__F * self.__x
         self.__P = (self.__F * self.__P * self.__F.T) + self.__Q
 
-    def update(self, sensor_package):
+    def update(self, sensor_package, ClearView):
         '''
         This is the projection correction; after we predict we use the sensor data
         and use the kalman gain to figure out how much of the correction we need.
         '''
+
         SPEED_CONV_FACT = 0.38
 
         posx = sensor_package[0]
@@ -142,15 +150,31 @@ class ExtendedKalmanFilterAstolfi:
         angle_sensor = sensor_package[2]
         vit_roue_droite = sensor_package[3]*SPEED_CONV_FACT
         vit_roue_gauche = sensor_package[4]*SPEED_CONV_FACT
+        
+        #clearview = thymio reperé 
 
-        # this is the error of our prediction to the sensor readings
-        y = [[posx], [posy], [angle_sensor], [vit_roue_droite], [vit_roue_gauche]] - self.__H * self.__x
+        if(ClearView):
+            # this is the error of our prediction to the sensor readings
+            y = [[posx], [posy], [angle_sensor], [vit_roue_droite], [vit_roue_gauche]] - self.__H * self.__x
 
-        # pre compute for the kalman gain K
-        PHLt = self.__P * self.__H.T
-        S = self.__H * PHLt + self.__R
-        K = PHLt * S.I
+            # pre compute for the kalman gain K
+            PHLt = self.__P * self.__H.T
+            S = self.__H * PHLt + self.__R
+            K = PHLt * S.I
+            # now we update our prediction using the error and kalman gain.
+            self.__x += K * y
+            self.__P = (self.__xI - K * self.__H) * self.__P
+            
+        else:
+            # this is the error of our prediction to the sensor readings
+            y = [[vit_roue_droite], [vit_roue_gauche]] - self.__Hkidnap * self.__x
 
-        # now we update our prediction using the error and kalman gain.
-        self.__x += K * y
-        self.__P = (self.__xI - K * self.__H) * self.__P
+            # pre compute for the kalman gain K
+            PHLt = self.__P * self.__Hkidnap.T
+            S = self.__Hkidnap * PHLt + self.__Rkidnap
+            K = PHLt * S.I
+             # now we update our prediction using the error and kalman gain.
+            self.__x += K * y
+            self.__P = (self.__xI - K * self.__Hkidnap) * self.__P
+
+       

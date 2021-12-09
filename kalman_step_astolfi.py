@@ -1,8 +1,15 @@
 import time
-from EKF_complet import ExtendedKalmanFilterComplete
+from EKF_astolfi import ExtendedKalmanFilterAstolfi
 
-def kalman_step_complet(sensor_package):
-
+def kalman_step_complet(sensor_package, KF):
+    ClearView = False
+    # test si caméra thymio kidnappé, caméra cachée ou autre.
+    # si un des elements du tableau est vide alors on retourne ClearView = false
+    if(bool(sensor_package[0]) & bool(sensor_package[1]) & bool(sensor_package[2])):
+        ClearView = True
+    else:
+        ClearView = False
+    
     # 1) intervalle de temps entre derniere et nouveau predict/update
     dt = time.time() - KF.get_time_stamp()
     KF.set_time_stamp(time.time())
@@ -14,6 +21,6 @@ def kalman_step_complet(sensor_package):
     KF.predict()
 
     # 4) Correction de la prediction
-    KF.update(rotation, sensor_package)
-
-    return KF.current_estimate_state()
+    KF.update(sensor_package, ClearView)
+    
+    return KF.current_estimate_state() 
