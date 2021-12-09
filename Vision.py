@@ -202,6 +202,7 @@ def img_calibration(img):
         print(corner_points)
     corner_points=order_points(corner_points)
     warpedimg=four_point_transform(img,corner_points)
+    corner_points = []
     return warpedimg
 
 
