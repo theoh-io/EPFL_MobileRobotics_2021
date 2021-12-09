@@ -120,17 +120,20 @@ def color_mask(imgRGB, color):
     
     return output_hsv
 
-def detectCircle(imgRGB,color):
+def detectCircle(imgRGB,target):
     coord = []
     color_infos = (0,255,255)
     
-    if color == 'red':
-        lower=np.array([170,50,50])
-        upper=np.array([240,255,255])
-    if color == 'yellow':
+    if target == 'thymio':
+        coord = []
         lower=np.array([10,40,40])
         upper=np.array([40,255,255])
-    if color == 'cyan':
+    if target == 'goal':
+        coord = [0,0]
+        lower=np.array([170,50,50])
+        upper=np.array([240,255,255])
+    if target == 'start':
+        coord = [0,0]
         lower=np.array([80,50,50])
         upper=np.array([100,255,255])
     
@@ -146,7 +149,10 @@ def detectCircle(imgRGB,color):
         for i in range(0,len(elements)):
             c = elements[i] 
             ((x,y),rayon) = cv2.minEnclosingCircle(c)
-            coord.append((x,y,rayon))
+            if target == 'thymio':
+                coord.append((x,y,rayon))
+            else :
+                coord = [x,y]
             if rayon>0:
                 cv2.circle(image2,(int(x),int(y)), int(rayon), color_infos, 2)
     return coord
@@ -157,14 +163,12 @@ def angle_between(p1, p2):
     ang = np.arctan2(p[1],p[0])
     return np.rad2deg(ang)
 
-def directionTymio(imgRGB):
-    coordTymio = detectCircle(imgRGB,'yellow')
-    pts = sorted(coordTymio, key=lambda x: x[2])
-    print(pts)
+def directionThymio(imgRGB):
+    coordThymio = detectCircle(imgRGB,'thymio')
+    pts = sorted(coordThymio, key=lambda x: x[2])
     top = (pts[0][0],pts[0][1])
     
     bottom = (pts[1][0],pts[1][1])
-    print(top,bottom)
     direction = angle_between(top,bottom)
     return [bottom,direction]
 
@@ -202,13 +206,13 @@ def img_calibration(img):
 
 
 
-def obstacle_detection():
+def obstacle_detection(img):
     # Reading image
-    img2 = cv2.imread('obs.png', cv2.IMREAD_COLOR)
+    #img2 = cv2.imread('obs.png', cv2.IMREAD_COLOR)
     
     # Reading same image in another variable and 
     # converting to gray scale.
-    img = cv2.imread('obs.png', cv2.IMREAD_GRAYSCALE)
+    img = cv2.cvtColor( img , cv2.COLOR_RGB2GRAY)
     
     # Converting image to a binary image 
     # (black and white only image).
@@ -220,6 +224,8 @@ def obstacle_detection():
     contours,_=cv2.findContours(threshold, cv2.RETR_TREE,
                                 cv2.CHAIN_APPROX_SIMPLE)
     
+    list_polygon=[]
+    polygon=[]
     # Searching through every region selected to 
     # find the required polygon.
     for cnt in contours :
@@ -227,10 +233,18 @@ def obstacle_detection():
     
         # Shortlisting the regions based on there area.
         if area > 400: 
-            polygons = cv2.approxPolyDP(cnt, 
+            approx = cv2.approxPolyDP(cnt, 
                                     0.009 * cv2.arcLength(cnt, True), True)
         
-    return polygons
+            # Checking if the no. of sides of the selected region is 7.
+            if(len(approx) == 4): 
+                cv2.drawContours(img, [approx], 0, (0, 0, 255), 5)
+                for i in range (len(approx)):
+                    point=(approx[i][0][0],approx[i][0][1])
+                    polygon.append(point)
+                list_polygon.append(polygon)
+                polygon=[]      
+    return list_polygon
 
 
 
