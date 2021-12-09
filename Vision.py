@@ -7,9 +7,9 @@ from matplotlib.pyplot import imshow
 from matplotlib import pyplot as plt
 
 
-#variables declaration
-iterations_erode=6
-area_size=500 #used for corner detections
+#variables declaration to tune at each test
+iterations_erode=4
+area_size=50 #used for corner detections
 
 #Defining color ranges
 pink_lower=[]
@@ -18,8 +18,11 @@ lower_red = [0,50,50]
 upper_red = [10,255,255]
 lower_cyan =[170,50,50]
 upper_cyan =[180,255,255]
-green_lower=np.array([30,40,40]) #only one that we tested
+#green_lower=np.array([30,40,40]) #only one that we tested
 green_upper=np.array([80,255,255])
+
+green_lower=np.array([30,30,30]) #only one that we tested
+#green_upper=np.array([80,255,255])
 
 
 
