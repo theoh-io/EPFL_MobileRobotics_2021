@@ -197,7 +197,6 @@ def img_calibration(img):
         if (cv2.contourArea(contours[i]) > area_size):
             mom = cv2.moments(contours[i])
             corner_points.append((int(mom['m10'] / mom['m00']), int(mom['m01'] / mom['m00']))) #centre des carrés
-    print(len(corner_points))
     if len(corner_points) != 4:
         print("failure in identifying corners")
         print(corner_points)
