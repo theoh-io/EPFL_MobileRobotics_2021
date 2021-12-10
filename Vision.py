@@ -129,16 +129,39 @@ def color_mask(imgRGB, color):
     
     return output_hsv
 
+def detectThymio(imgRGB):
+    pts=[]
+    #p1 is the big circle and p2 the little
+    p1=[]
+    p2=[]
+    lower=np.array([10,40,40])
+    upper=np.array([40,255,255])
+    nb_iterations=0
+    img_hsv = cv2.cvtColor(imgRGB, cv2.COLOR_RGB2HSV)
+    mask = cv2.inRange(img_hsv, lower, upper)
+    img_hsv = cv2.blur(img_hsv,(7,7))
+    mask = cv2.erode(mask, None, iterations = nb_iterations)
+    mask = cv2.dilate(mask, None, iterations = nb_iterations)
+    elements,_ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    if len(elements) > 0:
+        #sorting the detected contours by descending area size
+        elements.sort(key=cv2.contourArea, reverse=True)
+        #finding big circle
+        c=elements[0]
+        ((x,y),rayon) = cv2.minEnclosingCircle(c)
+        #finding little circle
+        c2=elements[1]
+        ((x2,y2),rayon2) = cv2.minEnclosingCircle(c2)
+        p1=[x,y]
+        p2=[x2,y2]
+        pts=[p1,p2]
+    return pts
+
 def detectCircle(imgRGB,target):
     coord = []
     color_infos = (0,255,255)
     
-    if target == 'thymio':
-        coord = []
-        lower=np.array([10,40,40])
-        upper=np.array([40,255,255])
-        nb_iterations=0
-        print('here')
     if target == 'goal':
         coord = [0,0]
         lower=np.array([170,50,50])
@@ -162,28 +185,21 @@ def detectCircle(imgRGB,target):
         for i in range(0,len(elements)):
             c = elements[i] 
             ((x,y),rayon) = cv2.minEnclosingCircle(c)
-            if target == 'thymio':
-                coord.append((x,y,rayon))
-            else :
-                coord = [x,y]
-            #if rayon>0:
-                #cv2.circle(image2,(int(x),int(y)), int(rayon), color_infos, 2)
+            coord = [x,y]
     return coord
 
-def angle_between(p1, p2):
-    p = [p1[0]-p2[0],p1[1]-p2[1]]
-    p[1] = -p[1]
-    ang = np.arctan2(p[1],p[0])
+def angle_between(pts):
+    #pts[0]=big_circle and pts[1]= little circle
+    dist = [pts[1][0]-pts[0][0],pts[1][1]-pts[0][1]]
+    #inverse distance en y a cause de l'axe y inversé d'openCV
+    dist[1] = -dist[1]
+    ang = np.arctan2(dist[1],dist[0])
     return np.rad2deg(ang)
 
 def directionThymio(imgRGB):
-    coordThymio = detectCircle(imgRGB,'thymio')
-    pts = sorted(coordThymio, key=lambda x: x[2])
-    top = (pts[0][0],pts[0][1])
-    
-    bottom = (pts[1][0],pts[1][1])
-    direction = angle_between(top,bottom)
-    return [bottom,direction]
+    coordThymio = detectThymio(imgRGB)
+    direction = angle_between(coordThymio)
+    return direction
 
 
 #high level functions (celles qu'on appelle dans main)
