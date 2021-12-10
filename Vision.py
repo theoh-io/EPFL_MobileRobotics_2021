@@ -203,7 +203,37 @@ def directionThymio(imgRGB):
 
 
 #high level functions (celles qu'on appelle dans main)
-def img_calibration(img):
+
+#used only the first time
+def find_corners(img):
+    #img=cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    img_blur = cv2.GaussianBlur(img, (7, 7), 0)
+    HSV = cv2.cvtColor(img_blur, cv2.COLOR_RGB2HSV)
+    mask=cv2.inRange(HSV,green_lower,green_upper)
+    mask = cv2.erode(mask,None, iterations=iterations_erode)
+    mask = cv2.dilate(mask,None, iterations=iterations_erode)
+    #trouve les contours des coins
+    contours, hierarchy = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE) 
+    #suppressing false corners
+    initial_length=len(contours)
+    for i in range(len(contours)):
+        backwards_i=initial_length-i-1
+        area = cv2.contourArea(contours[backwards_i])
+        # Shortlisting the regions based on there area.
+        if area < area_size:
+            del contours[backwards_i]
+    #finding corners center
+    corner_points = []
+    for i in range(len(contours)):
+        if (cv2.contourArea(contours[i]) > area_size):
+            mom = cv2.moments(contours[i])
+            corner_points.append((int(mom['m10'] / mom['m00']), int(mom['m01'] / mom['m00']))) #centre des carrés
+    if len(corner_points) != 4:
+        print("failure in identifying corners")
+    corner_points=order_points(corner_points)
+    return corner_points
+
+def img_calibration(img, corner_coord):
     #input img doit etre en rgb
     #img=cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     img_blur = cv2.GaussianBlur(img, (7, 7), 0)
@@ -229,7 +259,7 @@ def img_calibration(img):
             corner_points.append((int(mom['m10'] / mom['m00']), int(mom['m01'] / mom['m00']))) #centre des carrés
     if len(corner_points) != 4:
         print("failure in identifying corners")
-        print(corner_points)
+        corner_points=corner_coord
     corner_points=order_points(corner_points)
     warpedimg=four_point_transform(img,corner_points)
     
