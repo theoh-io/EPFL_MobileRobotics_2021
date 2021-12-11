@@ -1,20 +1,20 @@
 def update_state(state,obstThrL,obstThrH, obst):
-    if state == 0: 
+    if state == 2: 
         # switch from goal tracking to obst avoidance if obstacle detected
         if (obst[0] > obstThrH):
-            state = 1
+            state = 3
             print("change state to local")
         elif (obst[2] > obstThrH):
-            state = 1
+            state = 3
             print("change state to local")
         elif (obst[1] > obstThrH):
-            state = 1
+            state = 3
             print("change state to local")
-    elif state == 1:
+    elif state == 3:
         if obst[0] < obstThrL:
             if obst[2] < obstThrL:
                 # switch from obst avoidance to goal tracking if obstacle got unseen
-                state = 0
+                state = 2
                 print("change state to global")
     
     return state
