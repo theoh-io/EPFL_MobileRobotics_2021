@@ -41,8 +41,8 @@ class ExtendedKalmanFilterAstolfi:
         self.__R = np.matrix([[1, 0,   0, 0, 0],
                               [0, 1,   0, 0, 0],
                               [0, 0, 0.1, 0, 0],
-                              [0, 0,   0, 3, 0],
-                              [0, 0,   0, 0, 3]])
+                              [0, 0,   0, 1, 0],
+                              [0, 0,   0, 0, 1]])
         
         self.__Rkidnap = np.matrix([[1, 0],
                               [0, 1]])
@@ -92,9 +92,9 @@ class ExtendedKalmanFilterAstolfi:
         e53 = alpha_cos/2
         e54 = alpha_cos/2
 
-        e62 = alpha_cos*(NroueDroite+NroueGauche)/2
-        e63 = alpha_sin/2
-        e64 = alpha_sin/2
+        e62 = -alpha_cos*(NroueDroite+NroueGauche)/2
+        e63 = -alpha_sin/2
+        e64 = -alpha_sin/2
 
         e73 = 1/(2*L_ROUE_CENTRE)
         e74 = -1/(2*L_ROUE_CENTRE)
@@ -111,14 +111,14 @@ class ExtendedKalmanFilterAstolfi:
                               [0, 0, e62, e63, e64,   0,   0,   0],
                               [0, 0,   0, e73, e74,   0,   0,   0]])
         # set Q
-        e00 = 0.01
-        e11 = 0.01
-        e22 = 0.0000001
-        e33 = 0.01
-        e44 = 0.01
-        e55 = 0.01
-        e66 = 0.01
-        e77 = 0.01
+        e00 = 1
+        e11 = 1
+        e22 = 1
+        e33 = 1
+        e44 = 1
+        e55 = 1
+        e66 = 1
+        e77 = 1
 
 
         self.__Q = np.matrix([[e00, 0, 0, 0, 0, 0, 0, 0],

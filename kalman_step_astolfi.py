@@ -1,7 +1,5 @@
 import time
-import numpy as np
 from EKF_astolfi import ExtendedKalmanFilterAstolfi
-
 
 def kalman_step_complet(sensor_package, KF):
     ClearView = False
@@ -27,7 +25,7 @@ def kalman_step_complet(sensor_package, KF):
 
     etat = KF.current_estimate_state()
 
-    pos_angle = [etat[0], etat[1], etat[2]]        #a verifier
+  #  pos_angle = [etat[0], etat[1], etat[2]]        #a verifier
 
-    pos_angle=np.squeeze(np.asarray(pos_angle))
-    return pos_angle
+  #  return pos_angle
+    return etat 
