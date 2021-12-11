@@ -70,7 +70,7 @@ class ExtendedKalmanFilterAstolfi:
     def get_time_stamp(self):
         return self.__timeStamp
 
-    def recompute_F_and_Q(self, dt):
+    def recompute_F_and_Q(self, dt):            # xxx a modifier : Q ne se fait pas modifier, que F
         '''
         updates the motion model and process covar based on delta time from last measurement.
         '''
