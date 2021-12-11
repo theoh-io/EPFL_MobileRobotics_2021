@@ -1,3 +1,5 @@
+from tdmclient import ClientAsync, aw
+
 def update_state(state,obstThrL,obstThrH, obst):
     if state == 2: 
         # switch from goal tracking to obst avoidance if obstacle detected
@@ -45,6 +47,8 @@ def update_state2(state,obstThrL,obstThrH, obst):
                         if obst[4] < obstThrL:
                             # switch from obst avoidance to goal tracking if obstacle got unseen
                             state = 2
+                            print("sleep 1 sec")
+                            aw(client.sleep(1))
                             print("change state to global")
     return state
 

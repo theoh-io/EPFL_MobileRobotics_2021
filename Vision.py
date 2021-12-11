@@ -143,7 +143,7 @@ def detectThymio(imgRGB):
     mask = cv2.erode(mask, None, iterations = nb_iterations)
     mask = cv2.dilate(mask, None, iterations = nb_iterations)
     elements,_ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    print(len(elements))
+    #print(len(elements))
     if (len(elements)==0):
         pts=[[None,None],[None,None]]
         return pts
