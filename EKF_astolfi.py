@@ -38,11 +38,11 @@ class ExtendedKalmanFilterAstolfi:
                                     [0, 0, 0, 0, 1, 0, 0, 0]])  # matrice si thymio non repéré
 
         # à calibrer
-        self.__R = np.matrix([[1, 0,   0, 0, 0],
-                              [0, 1,   0, 0, 0],
-                              [0, 0, 0.1, 0, 0],
-                              [0, 0,   0, 1, 0],
-                              [0, 0,   0, 0, 1]])
+        self.__R = np.matrix([[0.01, 0,   0, 0, 0],
+                              [0, 0.01,   0, 0, 0],
+                              [0, 0, 0.001, 0, 0],
+                              [0, 0,   0, 10, 0],
+                              [0, 0,   0, 0, 10]])
         
         self.__Rkidnap = np.matrix([[1, 0],
                               [0, 1]])
