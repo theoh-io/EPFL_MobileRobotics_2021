@@ -82,7 +82,10 @@ class ExtendedKalmanFilterAstolfi:
         alpha = etat[0][2].item(0)  # angle de l'etat
         NroueDroite = etat[0][3].item(0)  # tirer la vitesse
         NroueGauche = etat[0][4].item(0)  # tirer la vitesse
-
+        print("Vitesses droite / gauche -------------------")
+        print(NroueDroite)
+        print(NroueGauche)
+        print("--------------------------------------------")
         #thymio tourne a gauche : rotation positive car anti horaire
 
         alpha_sin = np.sin(alpha)
