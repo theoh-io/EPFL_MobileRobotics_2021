@@ -27,7 +27,7 @@ lower_red = [0,50,50]
 upper_red = [10,255,255]
 lower_cyan =[170,50,50]
 upper_cyan =[180,255,255]
-green_lower=np.array([45,30,30])
+green_lower=np.array([45,40,30])
 green_upper=np.array([90,255,255])
 
 
@@ -134,16 +134,16 @@ def detectThymio(imgRGB):
     #p1 is the big circle and p2 the little
     p1=[]
     p2=[]
-    lower=np.array([10,80,40])
+    lower=np.array([10,30,30])
     upper=np.array([40,255,255])
-    nb_iterations=0
+    nb_iterations=1
     img_hsv = cv2.cvtColor(imgRGB, cv2.COLOR_RGB2HSV)
     mask = cv2.inRange(img_hsv, lower, upper)
     img_hsv = cv2.blur(img_hsv,(7,7))
     mask = cv2.erode(mask, None, iterations = nb_iterations)
     mask = cv2.dilate(mask, None, iterations = nb_iterations)
-    elements,_ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
+    elements,_ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    print(len(elements))
     if len(elements) > 0:
         #sorting the detected contours by descending area size
         elements.sort(key=cv2.contourArea, reverse=True)
@@ -166,11 +166,11 @@ def detectCircle(imgRGB,target):
         coord = [0,0]
         lower=np.array([170,50,50])
         upper=np.array([240,255,255])
-        nb_iterations=4
+        nb_iterations=1
     if target == 'start':
         coord = [0,0]
-        lower=np.array([80,50,105])
-        upper=np.array([120,255,255])
+        lower=np.array([85,50,50])
+        upper=np.array([105,255,255])
         nb_iterations=3
     
     img_hsv = cv2.cvtColor(imgRGB, cv2.COLOR_RGB2HSV)
@@ -230,6 +230,7 @@ def find_corners(img):
             corner_points.append((int(mom['m10'] / mom['m00']), int(mom['m01'] / mom['m00']))) #centre des carrés
     if len(corner_points) != 4:
         print("failure in identifying corners")
+        print("length corner ",len(corner_points))
     corner_points=order_points(corner_points)
     return corner_points
 
