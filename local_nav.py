@@ -21,7 +21,7 @@ def update_state(state,obstThrL,obstThrH, obst):
     
     return state
 
-def update_state2(state,obstThrL,obstThrH, obst):
+def update_state2(state,obstThrL,obstThrH, obst,client):
     if state == 2: 
         # switch from goal tracking to obst avoidance if obstacle detected
         if (obst[2] > obstThrH):
@@ -48,7 +48,7 @@ def update_state2(state,obstThrL,obstThrH, obst):
                             # switch from obst avoidance to goal tracking if obstacle got unseen
                             state = 2
                             print("sleep 1 sec")
-                            aw(client.sleep(1))
+                            aw(client.sleep(0.6))
                             print("change state to global")
     return state
 
