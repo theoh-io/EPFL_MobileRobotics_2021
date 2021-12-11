@@ -115,6 +115,7 @@ def astolfi(actual_pos, goal_pos, actual_angle, node):
     omega=ka*alpha+kb*beta
     right_speed=(l*omega+v)/r
     left_speed=(v-l*omega)/r
+    print(left_speed)
     left_speed=int(left_speed)
     right_speed=int(right_speed)
     print(left_speed,right_speed)

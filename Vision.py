@@ -144,6 +144,9 @@ def detectThymio(imgRGB):
     mask = cv2.dilate(mask, None, iterations = nb_iterations)
     elements,_ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     print(len(elements))
+    if (len(elements)==0):
+        pts=[[None,None],[None,None]]
+        return pts
     if len(elements) > 0:
         #sorting the detected contours by descending area size
         elements.sort(key=cv2.contourArea, reverse=True)
@@ -198,8 +201,13 @@ def angle_between(pts):
 
 def directionThymio(imgRGB):
     coordThymio = detectThymio(imgRGB)
-    direction = angle_between(coordThymio)
-    return direction
+    #handling the case where thymio can't be detected and pass a None to Kalman
+    if bool(not coordThymio[0][0]):
+        print("thymio indetectable")
+        return None
+    else:
+        direction = angle_between(coordThymio)
+        return direction
 
 
 #high level functions (celles qu'on appelle dans main)
