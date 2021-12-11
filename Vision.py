@@ -134,7 +134,7 @@ def detectThymio(imgRGB):
     #p1 is the big circle and p2 the little
     p1=[]
     p2=[]
-    lower=np.array([10,40,40])
+    lower=np.array([10,80,40])
     upper=np.array([40,255,255])
     nb_iterations=0
     img_hsv = cv2.cvtColor(imgRGB, cv2.COLOR_RGB2HSV)
@@ -169,9 +169,9 @@ def detectCircle(imgRGB,target):
         nb_iterations=4
     if target == 'start':
         coord = [0,0]
-        lower=np.array([80,50,50])
+        lower=np.array([80,50,105])
         upper=np.array([120,255,255])
-        nb_iterations=4
+        nb_iterations=3
     
     img_hsv = cv2.cvtColor(imgRGB, cv2.COLOR_RGB2HSV)
     mask = cv2.inRange(img_hsv, lower, upper)
