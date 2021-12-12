@@ -38,11 +38,11 @@ class ExtendedKalmanFilterAstolfi:
                                     [0, 0, 0, 0, 1, 0, 0, 0]])  # matrice si thymio non repéré
 
         # à calibrer
-        self.__R = np.matrix([[0.01, 0,   0, 0, 0],
-                              [0, 0.01,   0, 0, 0],
-                              [0, 0, 0.001, 0, 0],
-                              [0, 0,   0, 10, 0],
-                              [0, 0,   0, 0, 10]])
+        self.__R = np.matrix([[0.1, 0,   0, 0, 0],
+                              [0, 0.1,   0, 0, 0],
+                              [0, 0, 0.5, 0, 0],
+                              [0, 0,   0, 7, 0],
+                              [0, 0,   0, 0, 7]])
         
         self.__Rkidnap = np.matrix([[1, 0],
                               [0, 1]])
@@ -137,15 +137,22 @@ class ExtendedKalmanFilterAstolfi:
         '''
         This is a projection step. we predict into the future.
         '''
+        
+        print("state avant predict")
+        print(self.__x)
+        
         self.__x = self.__F * self.__x
         self.__P = (self.__F * self.__P * self.__F.T) + self.__Q
+        
+        print("state apres predict")
+        print(self.__x)
 
     def update(self, sensor_package, ClearView):
         '''
         This is the projection correction; after we predict we use the sensor data
         and use the kalman gain to figure out how much of the correction we need.
         '''
-
+        SPEED_CORRECTION = 0.6
         SPEED_CONV_FACT = 0.38
 
         posx = sensor_package[0]
@@ -153,8 +160,8 @@ class ExtendedKalmanFilterAstolfi:
         angle_sensor = sensor_package[2]
    #     print("angle_mesure: ",sensor_package[2])
 
-        vit_roue_droite = sensor_package[3]*SPEED_CONV_FACT
-        vit_roue_gauche = sensor_package[4]*SPEED_CONV_FACT
+        vit_roue_droite = sensor_package[3]*SPEED_CONV_FACT*SPEED_CORRECTION
+        vit_roue_gauche = sensor_package[4]*SPEED_CONV_FACT*SPEED_CORRECTION
    #     print("vit_mesure_droite: ",sensor_package[3])
    #     print("vit_mesure_gauche: ",sensor_package[4])
 
