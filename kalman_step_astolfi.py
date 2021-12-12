@@ -3,8 +3,8 @@ from EKF_astolfi import ExtendedKalmanFilterAstolfi
 import numpy as np
 
 def kalman_step_complet(sensor_package, KF):
-    DIST_TRESHOLD = 90
-    ANGLE_TRESHOLD = 0.2
+    DIST_TRESHOLD = 200
+    ANGLE_TRESHOLD = 0.4
     
     ClearView = False
     # test si caméra thymio kidnappé, caméra cachée ou autre.
