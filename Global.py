@@ -1,12 +1,11 @@
-#!pip install pyvisgraph
-#!pip install geopandas
-#!pip install matplotlib
-
 import pyvisgraph as vg
 import math
 import geopandas as gpd
 from geopandas import GeoSeries
 from shapely.geometry import Polygon, Point, LineString
+
+#Constant margin to add to obstacle
+margin=40
 
 def plot_geometric_data(g):
     print(g,"\n")
@@ -25,9 +24,8 @@ def obstacles_to_polygons(list_obstacles):
     return g
 
 
-def polygons_add_margin(g,margin):
+def polygons_add_margin(g):
     # Geometric graph of the obstacles with the margin
-    # margin=0.1
     g=g.buffer(margin,join_style=2) 
     return g
 
@@ -97,12 +95,12 @@ def geometric_path_to_vector(path):
         check_points.append([path.x[i],path.y[i]])
     return check_points
 
-def global_pathplanning(start_point,end_point,list_obstacles,margin):
+def global_pathplanning(start_point,end_point,list_obstacles):
     
     g = obstacles_to_polygons(list_obstacles)
     #plot_geometric_data(g)
 
-    g = polygons_add_margin(g,margin)
+    g = polygons_add_margin(g)
     #plot_geometric_data(g)
 
     visgraph = polygons_to_VisibilityGraph(g)
