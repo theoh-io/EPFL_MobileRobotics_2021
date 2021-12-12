@@ -38,11 +38,11 @@ class ExtendedKalmanFilterAstolfi:
                                     [0, 0, 0, 0, 1, 0, 0, 0]])  # matrice si thymio non repéré
 
         # à calibrer
-        self.__R = np.matrix([[1, 0,   0, 0, 0],
-                              [0, 1,   0, 0, 0],
-                              [0, 0, 0.1, 0, 0],
-                              [0, 0,   0, 3, 0],
-                              [0, 0,   0, 0, 3]])
+        self.__R = np.matrix([[0.1, 0,   0, 0, 0],
+                              [0, 0.1,   0, 0, 0],
+                              [0, 0, 0.5, 0, 0],
+                              [0, 0,   0, 7, 0],
+                              [0, 0,   0, 0, 7]])
         
         self.__Rkidnap = np.matrix([[1, 0],
                               [0, 1]])
@@ -82,7 +82,10 @@ class ExtendedKalmanFilterAstolfi:
         alpha = etat[0][2].item(0)  # angle de l'etat
         NroueDroite = etat[0][3].item(0)  # tirer la vitesse
         NroueGauche = etat[0][4].item(0)  # tirer la vitesse
-
+        #print("Vitesses droite / gauche -------------------")
+        #print(NroueDroite)
+        #print(NroueGauche)
+        #print("--------------------------------------------")
         #thymio tourne a gauche : rotation positive car anti horaire
 
         alpha_sin = np.sin(alpha)
@@ -92,15 +95,15 @@ class ExtendedKalmanFilterAstolfi:
         e53 = alpha_cos/2
         e54 = alpha_cos/2
 
-        e62 = alpha_cos*(NroueDroite+NroueGauche)/2
-        e63 = alpha_sin/2
-        e64 = alpha_sin/2
+        e62 = -alpha_cos*(NroueDroite+NroueGauche)/2
+        e63 = -alpha_sin/2
+        e64 = -alpha_sin/2
 
         e73 = 1/(2*L_ROUE_CENTRE)
         e74 = -1/(2*L_ROUE_CENTRE)
 
         e05 = e16 = e27 = dt
-        print("temps entre samples: ", dt)
+  #      print("temps entre samples: ", dt)
 
         self.__F = np.matrix([[1, 0,   0,   0, 0,   e05,   0,   0],
                               [0, 1,   0,   0, 0,     0, e16,   0],
@@ -111,14 +114,14 @@ class ExtendedKalmanFilterAstolfi:
                               [0, 0, e62, e63, e64,   0,   0,   0],
                               [0, 0,   0, e73, e74,   0,   0,   0]])
         # set Q
-        e00 = 0.01
-        e11 = 0.01
-        e22 = 0.0000001
-        e33 = 0.01
-        e44 = 0.01
-        e55 = 0.01
-        e66 = 0.01
-        e77 = 0.01
+        e00 = 1
+        e11 = 1
+        e22 = 1
+        e33 = 1
+        e44 = 1
+        e55 = 1
+        e66 = 1
+        e77 = 1
 
 
         self.__Q = np.matrix([[e00, 0, 0, 0, 0, 0, 0, 0],
@@ -134,26 +137,48 @@ class ExtendedKalmanFilterAstolfi:
         '''
         This is a projection step. we predict into the future.
         '''
+        
+        print("state avant predict")
+        print(self.__x)
+        
+        print("la matrice F: ", self.__F)
+        
         self.__x = self.__F * self.__x
         self.__P = (self.__F * self.__P * self.__F.T) + self.__Q
+        
+        print("state apres predict")
+        print(self.__x)
 
     def update(self, sensor_package, ClearView):
         '''
         This is the projection correction; after we predict we use the sensor data
         and use the kalman gain to figure out how much of the correction we need.
         '''
-
+        SPEED_CORRECTION = 0.6
         SPEED_CONV_FACT = 0.38
 
         posx = sensor_package[0]
         posy = sensor_package[1]
         angle_sensor = sensor_package[2]
-        vit_roue_droite = sensor_package[3]*SPEED_CONV_FACT
-        vit_roue_gauche = sensor_package[4]*SPEED_CONV_FACT
+   #     print("angle_mesure: ",sensor_package[2])
+
+        vit_roue_droite = sensor_package[3]*SPEED_CONV_FACT*SPEED_CORRECTION
+        vit_roue_gauche = sensor_package[4]*SPEED_CONV_FACT*SPEED_CORRECTION
+   #     print("vit_mesure_droite: ",sensor_package[3])
+   #     print("vit_mesure_gauche: ",sensor_package[4])
+
+        
+   #     print("vit_roue_droite: ",vit_roue_droite)
+   #     print("vit_roue_gauche: ",vit_roue_gauche)
+
         
         #clearview = thymio reperé 
 
         if(ClearView):
+            print("pas d'obstacle devant camera")
+            print("Valeurs avant prediction -------------------------------")
+            print("Angle du thymio en deg: ",self.__x[2])
+            print("vitesse Vx: ",self.__x[5]," vitesse Vy: ",self.__x[6])
             # this is the error of our prediction to the sensor readings
             y = [[posx], [posy], [angle_sensor], [vit_roue_droite], [vit_roue_gauche]] - self.__H * self.__x
 
@@ -164,8 +189,18 @@ class ExtendedKalmanFilterAstolfi:
             # now we update our prediction using the error and kalman gain.
             self.__x += K * y
             self.__P = (self.__xI - K * self.__H) * self.__P
+            print("Valeurs apres prediction -------------------------------")
+            print("Angle du thymio en deg: ",self.__x[2])
+            print("vitesse Vx: ",self.__x[5]," vitesse Vy: ",self.__x[6])
+            print("--------------------------------------------------------")
             
         else:
+            print("obstacle devant camera")
+            print("Valeurs avant prediction -------------------------------")
+            print("Angle du thymio en deg: ",self.__x[2])
+            print("vitesse Vx: ",self.__x[5]," vitesse Vy: ",self.__x[6])
+
+  #          print("vecteur d'etats avant update qd  thym cache: ", self.__x)
             # this is the error of our prediction to the sensor readings
             y = [[vit_roue_droite], [vit_roue_gauche]] - self.__Hkidnap * self.__x
 
@@ -176,5 +211,10 @@ class ExtendedKalmanFilterAstolfi:
              # now we update our prediction using the error and kalman gain.
             self.__x += K * y
             self.__P = (self.__xI - K * self.__Hkidnap) * self.__P
+ #           print("vecteur d'etats apres update qd  thym cache: ", self.__x)
+            print("Angle du thymio en deg: ",self.__x[2])
+            print("vitesse Vx: ",self.__x[5]," vitesse Vy: ",self.__x[6])
+            print("--------------------------------------------------------")
 
+            
        
