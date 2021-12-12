@@ -82,10 +82,10 @@ class ExtendedKalmanFilterAstolfi:
         alpha = etat[0][2].item(0)  # angle de l'etat
         NroueDroite = etat[0][3].item(0)  # tirer la vitesse
         NroueGauche = etat[0][4].item(0)  # tirer la vitesse
-        print("Vitesses droite / gauche -------------------")
-        print(NroueDroite)
-        print(NroueGauche)
-        print("--------------------------------------------")
+        #print("Vitesses droite / gauche -------------------")
+        #print(NroueDroite)
+        #print(NroueGauche)
+        #print("--------------------------------------------")
         #thymio tourne a gauche : rotation positive car anti horaire
 
         alpha_sin = np.sin(alpha)
@@ -103,7 +103,7 @@ class ExtendedKalmanFilterAstolfi:
         e74 = -1/(2*L_ROUE_CENTRE)
 
         e05 = e16 = e27 = dt
-        print("temps entre samples: ", dt)
+  #      print("temps entre samples: ", dt)
 
         self.__F = np.matrix([[1, 0,   0,   0, 0,   e05,   0,   0],
                               [0, 1,   0,   0, 0,     0, e16,   0],
@@ -141,6 +141,8 @@ class ExtendedKalmanFilterAstolfi:
         print("state avant predict")
         print(self.__x)
         
+        print("la matrice F: ", self.__F)
+        
         self.__x = self.__F * self.__x
         self.__P = (self.__F * self.__P * self.__F.T) + self.__Q
         
@@ -174,6 +176,9 @@ class ExtendedKalmanFilterAstolfi:
 
         if(ClearView):
             print("pas d'obstacle devant camera")
+            print("Valeurs avant prediction -------------------------------")
+            print("Angle du thymio en deg: ",self.__x[2])
+            print("vitesse Vx: ",self.__x[5]," vitesse Vy: ",self.__x[6])
             # this is the error of our prediction to the sensor readings
             y = [[posx], [posy], [angle_sensor], [vit_roue_droite], [vit_roue_gauche]] - self.__H * self.__x
 
@@ -184,10 +189,18 @@ class ExtendedKalmanFilterAstolfi:
             # now we update our prediction using the error and kalman gain.
             self.__x += K * y
             self.__P = (self.__xI - K * self.__H) * self.__P
+            print("Valeurs apres prediction -------------------------------")
+            print("Angle du thymio en deg: ",self.__x[2])
+            print("vitesse Vx: ",self.__x[5]," vitesse Vy: ",self.__x[6])
+            print("--------------------------------------------------------")
             
         else:
             print("obstacle devant camera")
-            print("vecteur d'etats avant update qd  thym cache: ", self.__x)
+            print("Valeurs avant prediction -------------------------------")
+            print("Angle du thymio en deg: ",self.__x[2])
+            print("vitesse Vx: ",self.__x[5]," vitesse Vy: ",self.__x[6])
+
+  #          print("vecteur d'etats avant update qd  thym cache: ", self.__x)
             # this is the error of our prediction to the sensor readings
             y = [[vit_roue_droite], [vit_roue_gauche]] - self.__Hkidnap * self.__x
 
@@ -198,7 +211,10 @@ class ExtendedKalmanFilterAstolfi:
              # now we update our prediction using the error and kalman gain.
             self.__x += K * y
             self.__P = (self.__xI - K * self.__Hkidnap) * self.__P
-            print("vecteur d'etats apres update qd  thym cache: ", self.__x)
+ #           print("vecteur d'etats apres update qd  thym cache: ", self.__x)
+            print("Angle du thymio en deg: ",self.__x[2])
+            print("vitesse Vx: ",self.__x[5]," vitesse Vy: ",self.__x[6])
+            print("--------------------------------------------------------")
 
             
        
