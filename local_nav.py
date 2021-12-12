@@ -47,13 +47,12 @@ def update_state2(state,obstThrL,obstThrH, obst,client):
                         if obst[4] < obstThrL:
                             # switch from obst avoidance to goal tracking if obstacle got unseen
                             state = 2
-                            print("sleep 1 sec")
+                            print("sleep 0.6 sec")
                             aw(client.sleep(0.6))
                             print("change state to global")
     return state
 
 def local_nav(prox_horizontal,y):
-    leds_top = [30,30,30]
     
     # obstacle avoidance: ANN
     w_l = [40,  20, -20, -20, -40,  30, -10, 8, 0]
@@ -61,13 +60,13 @@ def local_nav(prox_horizontal,y):
 
     # Scale factors for sensors and constant factor
     sensor_scale = 800
-    constant_scale = 20
+    memory_scale = 20
 
     x = [0,0,0,0,0,0,0,0,0]
 
     # Memory
-    x[7] = y[0]//20
-    x[8] = y[1]//20
+    x[7] = y[0]//memory_scale
+    x[8] = y[1]//memory_scale
 
     for i in range(7):
         # Get and scale inputs
