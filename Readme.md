@@ -20,11 +20,11 @@ For the implementation: the image of the experimental environment is first captu
 |                                    |                    |
 | ---------------------------------- | ------------------ |
 | Test                               | Demo               |
-| Image Processing from Webcam       | ![](./gifs/boston) |
-| Global Navigation                  | ![](./gifs/gif)    |
-| Local Navigation                   | ![](./gifs/gif)    |
-| Navigation with Kalman             | ![](./gifs/gif)    |
+| Image Processing from Webcam       | ![](./pics/vis.gif) |
+| Global Navigation                  | ![](./pics/global.gif)    |
+| Local Navigation                   | ![](./pics/localNav.gif)    |
+| Navigation with Kalman             | ![](./pics/aveugle.gif)    |
 
-**The demo video is available at [`MobileRob_Demo_Video.mp4`](https://www.youtube.com/watch?v=dQw4w9WgXcQ).**
+**The demo video is available at [`MobileRob_Demo_Video.mp4`](add path).**
 
 
