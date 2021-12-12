@@ -181,7 +181,7 @@ def find_corners(image):
     return corner_points
 
 
-def img_calibration(imagr, corner_coord):
+def img_calibration(image, corner_coord):
     #input img doit etre en rgb
     #img=cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     img_blur = cv2.GaussianBlur(image, (7, 7), 0)
@@ -259,16 +259,31 @@ def printGlobalPath(path, image):
     for i in range(0,len(path)-1):
         cv2.line(image, (round(path[i][0]), round(path[i][1])),(round(path[i+1][0]), round(path[i+1][1])), (0,255,0), lineThickness)
 
+def initialisation(pic):
+    #obstacle detection
+    polygons=obstacle_detection(pic)
+    #Start and goal detection
+    pos_start=detectThymio(pic)[0]
+    angle_start=directionThymio(pic)
+    #start=vis.detectCircle(pic,'start')
+    goal=detectCircle(pic,'goal')
+    init=[pos_start,goal,polygons,angle_start]
+    return init
+
+def printThymio(pic, posThym, coordThym):
+    coordThym.append((round(posThym[0]),round(posThym[1]))) #pos_thym = [x,y]
+    for i in range(0,len(coordThym)):
+        cv2.circle(pic,(int(coordThym[i][0]),int(coordThym[i][1])), int(3), (0,0,255), 2)
+
+def printGlobalPath(path, pic):
+    lineThickness = 3
+    for i in range(0,len(path)-1):
+        cv2.line(pic, (round(path[i][0]), round(path[i][1])),(round(path[i+1][0]), round(path[i+1][1])), (0,255,0), lineThickness)
         
-def takePicture(): 
-    # 1. Open camera
-    cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
-    #Wait for the camera to focus
+def takePicture(cap): 
+    #Wait for the camera to focus by extracting 5 frames
     for i in range(5):
         # 2. Extract a frame from reading camera
         check, frame = cap.read()
         time.sleep(1)
-        print()
-    # 3. Close camera
-    cap.release()
     return frame

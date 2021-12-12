@@ -18,12 +18,20 @@ coeff_dist=dist_coord
 rot_motor_speed=100
 rot_real_speed=37.895
 
-#coefficients for the Astolfi controller
-r=0.02 #need to mesure more precisely
-l=0.04 #need to be measured more precisely
-kp=0.1  #2 #>0
-ka=0.2  #must be > kp
-kb=-0.1 #<0
+#coefficients for the Astolfi controller 
+#thymio measures (mm)
+r=22
+l=48 
+#coefficients of the controller and threshold of it's FSM
+kp=25  #2 #>0
+ka=50  #must be > kp
+kb=-0.0001 #<0
+thresh_close2=10
+thresh_close1=75
+comm_sat_min=100
+comm_sat_max=250
+
+
 
 
 #motion functions
@@ -99,73 +107,26 @@ def globnav(checkpoints,starting_angle,node,client):
         navigate(checkpoints[i+1], checkpoints[i], angle, node, client)
         angle=angle2points(checkpoints[i+1],checkpoints[i],node)
     stopmotors(node)
-
-
-#calibration: just rotate on itself
-def calib_rot(node,client):
-    aw(node.set_variables(motors(-rot_motor_speed,rot_motor_speed)))
- 
-
-def astolfi(actual_pos, goal_pos, actual_angle, node):
-    delta=np.subtract(goal_pos,actual_pos)
-    pho=np.sqrt(np.sum(np.square(delta)))
-    alpha=-actual_angle + np.degrees(np.arctan2(delta[1],delta[0]))
-    beta=-actual_angle-alpha
-    v=kp*pho
-    omega=ka*alpha+kb*beta
-    right_speed=(l*omega+v)/r
-    left_speed=(v-l*omega)/r
-    print(left_speed)
-    left_speed=int(left_speed)
-    right_speed=int(right_speed)
-    print(left_speed,right_speed)
-    set_motors(left_speed, right_speed, node)
     
-#non Blocking version of the functions
-def forward2(next,actual,node, client):
-    y=[0,0]
-    direction=np.subtract(next,actual)
-    dist=np.sqrt(np.sum(np.square(direction)))
-    #dist: coord, coeff_dist: cm/coord, motor_speed[motor], coeff speed cm/s at 100
-    #print(dist, coeff_dist, motor_speed, real_speed)
-    forward_time=(dist*coeff_dist)/(real_speed) 
-    #print(forward_time)
-    y=[motor_speed,motor_speed]
-    return y
-
-def turn2(next,actual,actual_angle, node, client):
-    y=[0,0]
-    #should we use the circular notation for negative: 2**16-??
-    new_angle=angle2points(next, actual, node)#first argument is y !!
-    angle_diff=new_angle-actual_angle 
-    rot_time=(abs(angle_diff))/(rot_real_speed)
-    if(angle_diff>0):
-        y=[-rot_motor_speed,rot_motor_speed]
-    elif(angle_diff<0):
-        y=[rot_motor_speed,-rot_motor_speed]
-    return y
-
-def navigate2(next,actual,actual_angle, node, client):
-    y_turn = turn2(next,actual,actual_angle, node, client)
-    y_forward = forward2(next,actual, node, client)
-    return y_turn,y_forward
-
-def globnav2(checkpoints,starting_angle,node,client):
-    angle=starting_angle
-    for i in range(len(checkpoints)-1):   
-        [y_turn,y_forward]=navigate2(checkpoints[i+1], checkpoints[i], angle, node, client)
-        angle=angle2points(checkpoints[i+1],checkpoints[i],node)
-
-def astolfi2(actual_pos, goal_pos, actual_angle, node):
+#astolfi return switch_next is the transition condition of it's FSM to iterate on the next goal from the path list
+def astolfi(actual_pos, goal_pos, actual_angle, node): 
+    switch_next=0
     delta=np.subtract(goal_pos,actual_pos)
     pho=np.sqrt(np.sum(np.square(delta)))
-    alpha=-actual_angle + np.degrees(np.arctan2(delta[1],delta[0]))
+    alpha=-actual_angle + np.arctan2(-delta[1],delta[0])
     beta=-actual_angle-alpha
     v=kp*pho
+    if(pho<thresh_close1):
+        v=comm_sat_min*r
+    if(pho<thresh_close2):
+        v=0
+        switch_next=1      
     omega=ka*alpha+kb*beta
     right_speed=(l*omega+v)/r
     left_speed=(v-l*omega)/r
     left_speed=int(left_speed)
     right_speed=int(right_speed)
-    y=left_speed,right_speed
-    return y
+    set_motors(left_speed, right_speed, node)
+    return switch_next
+   
+    
