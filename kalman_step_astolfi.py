@@ -4,7 +4,7 @@ import numpy as np
 
 def kalman_step_complet(sensor_package, KF):
     DIST_TRESHOLD = 90
-    ANGLE_TRESHOLD = 0.157
+    ANGLE_TRESHOLD = 0.2
     
     ClearView = False
     # test si caméra thymio kidnappé, caméra cachée ou autre.
