@@ -20,22 +20,22 @@ class ExtendedKalmanFilterAstolfi:
                               [0, 0, 0, 0, 0, 0, 0, 1]])
 
 
-        self.__H = np.matrix([[1, 0, 0, 0, 0, 0, 0, 0],
+        self.__Hcamspeed = np.matrix([[1, 0, 0, 0, 0, 0, 0, 0],
                               [0, 1, 0, 0, 0, 0, 0, 0],
                               [0, 0, 1, 0, 0, 0, 0, 0],
                               [0, 0, 0, 1, 0, 0, 0, 0],
                               [0, 0, 0, 0, 1, 0, 0, 0]])
         
-        self.__Hkidnap = np.matrix([[0, 0, 0, 1, 0, 0, 0, 0],
+        self.__Hspeed = np.matrix([[0, 0, 0, 1, 0, 0, 0, 0],
                                     [0, 0, 0, 0, 1, 0, 0, 0]])
 
-        self.__R = np.matrix([[2.5, 0,   0, 0, 0],
+        self.__Rcamspeed = np.matrix([[2.5, 0,   0, 0, 0],
                               [0, 2.5,   0, 0, 0],
                               [0, 0, 0.005, 0, 0],
                               [0, 0,   0, 6, 0],
                               [0, 0,   0, 0, 6]])
         
-        self.__Rkidnap = np.matrix([[6, 0],
+        self.__Rspeed = np.matrix([[6, 0],
                               [0, 6]])
 
         self.__timeStamp = None
@@ -138,26 +138,26 @@ class ExtendedKalmanFilterAstolfi:
 
         if(ClearView):
             # this is the error of our prediction to the sensor readings
-            y = [[posx], [posy], [angle_sensor], [vit_roue_droite], [vit_roue_gauche]] - self.__H * self.__x
+            y = [[posx], [posy], [angle_sensor], [vit_roue_droite], [vit_roue_gauche]] - self.__Hcamspeed * self.__x
 
             # pre compute for the kalman gain K
-            PHLt = self.__P * self.__H.T
-            S = self.__H * PHLt + self.__R
+            PHLt = self.__P * self.__Hcamspeed.T
+            S = self.__Hcamspeed * PHLt + self.__Rcamspeed
             K = PHLt * S.I
             # now we update our prediction using the error and kalman gain.
             self.__x += K * y
-            self.__P = (self.__xI - K * self.__H) * self.__P
+            self.__P = (self.__xI - K * self.__Hcamspeed) * self.__P
 
         else:
             # this is the error of our prediction to the sensor readings
-            y = [[vit_roue_droite], [vit_roue_gauche]] - self.__Hkidnap * self.__x
+            y = [[vit_roue_droite], [vit_roue_gauche]] - self.__Hspeed * self.__x
 
             # pre compute for the kalman gain K
-            PHLt = self.__P * self.__Hkidnap.T
-            S = self.__Hkidnap * PHLt + self.__Rkidnap
+            PHLt = self.__P * self.__Hspeed.T
+            S = self.__Hspeed * PHLt + self.__Rspeed
             K = PHLt * S.I
              # now we update our prediction using the error and kalman gain.
             self.__x += K * y
-            self.__P = (self.__xI - K * self.__Hkidnap) * self.__P
+            self.__P = (self.__xI - K * self.__Hspeed) * self.__P
 
        
