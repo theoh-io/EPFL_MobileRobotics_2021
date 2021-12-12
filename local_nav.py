@@ -1,6 +1,10 @@
 from tdmclient import ClientAsync, aw
 
-def update_state(state,obstThrL,obstThrH, obst,client):
+#Threshold to switch states
+obstThrH=3700
+obstThrL=2500
+
+def update_state(state,obst,client):
     if state == 1: 
         # switch from goal tracking to obst avoidance if obstacle detected
         if (obst[2] > obstThrH):
