@@ -45,7 +45,7 @@ def read_prox_sensors(node,client):
     return prox
 
 
-    
+#astolfi controller
 #astolfi return switch_next is the transition condition of it's FSM to iterate on the next goal from the path list
 def astolfi(actual_pos, goal_pos, actual_angle, node): 
     switch_next=0
