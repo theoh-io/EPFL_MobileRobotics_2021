@@ -143,11 +143,8 @@ def detectThymio(imgRGB):
     mask = cv2.erode(mask, None, iterations = nb_iterations)
     mask = cv2.dilate(mask, None, iterations = nb_iterations)
     elements,_ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    #print(len(elements))
-    if (len(elements)==0):
-        pts=[[None,None],[None,None]]
-        return pts
-    if len(elements) > 0:
+    
+    if (len(elements) == 2):
         #sorting the detected contours by descending area size
         elements.sort(key=cv2.contourArea, reverse=True)
         #finding big circle
@@ -159,6 +156,8 @@ def detectThymio(imgRGB):
         p1=[x,y]
         p2=[x2,y2]
         pts=[p1,p2]
+    else:
+        pts=[[None,None],[None,None]]
     return pts
 
 def detectCircle(imgRGB,target):
@@ -197,7 +196,7 @@ def angle_between(pts):
     #inverse distance en y a cause de l'axe y inversé d'openCV
     dist[1] = -dist[1]
     ang = np.arctan2(dist[1],dist[0])
-    return np.rad2deg(ang)
+    return ang
 
 def directionThymio(imgRGB):
     coordThymio = detectThymio(imgRGB)
