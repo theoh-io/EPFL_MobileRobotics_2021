@@ -11,7 +11,7 @@ import time
 #tuning parameters
 #corners
 iterations_erode=4
-area_size=50 #used for corner detections
+area_size=70 #used for corner detections
 #obstacles
 area_obst_min=500
 area_obst_max=30000
