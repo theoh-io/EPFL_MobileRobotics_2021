@@ -20,6 +20,10 @@ thresh_up=255
 #color ranges
 green_lower=np.array([45,40,30])
 green_upper=np.array([90,255,255])
+red_lower=np.array([170,50,50])
+red_upper=np.array([240,255,255])
+yellow_lower=np.array([10,30,30])
+yellow_upper=np.array([40,255,255])
 
 
 def order_points(pts):
@@ -70,13 +74,10 @@ def detectThymio(image):
     pts=[]
     p1=[]   #p1 is the big circle 
     p2=[]   #p2 is the little circle
-    lower=np.array([10,30,30])
-    upper=np.array([40,255,255])
     nb_iterations=1
-    
     img_hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
     #Create the color mask and then apply erode and dilate to reduce noise
-    mask = cv2.inRange(img_hsv, lower, upper)
+    mask = cv2.inRange(img_hsv, yellow_lower, yellow_upper)
     mask = cv2.erode(mask, None, iterations = nb_iterations)
     mask = cv2.dilate(mask, None, iterations = nb_iterations)
     #Apply the mask to find the contours of the two yellow circle
@@ -101,23 +102,13 @@ def detectThymio(image):
     return pts
 
 
-def detectCircle(image,target):
+def detectGoal(image):
     coord = []
-    color_infos = (0,255,255)
-    
-    if target == 'goal':
-        coord = [0,0]
-        lower=np.array([170,50,50])
-        upper=np.array([240,255,255])
-        nb_iterations=1
-    if target == 'start':
-        coord = [0,0]
-        lower=np.array([85,50,50])
-        upper=np.array([105,255,255])
-        nb_iterations=3
+    coord = [0,0]
+    nb_iterations=1
     
     img_hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
-    mask = cv2.inRange(img_hsv, lower, upper)
+    mask = cv2.inRange(img_hsv, red_lower, red_upper)
     mask = cv2.erode(mask, None, iterations = nb_iterations)
     mask = cv2.dilate(mask, None, iterations = nb_iterations)
     elements,_ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -266,7 +257,7 @@ def initialisation(pic):
     pos_start=detectThymio(pic)[0]
     angle_start=directionThymio(pic)
     #start=vis.detectCircle(pic,'start')
-    goal=detectCircle(pic,'goal')
+    goal=detectGoal(pic)
     init=[pos_start,goal,polygons,angle_start]
     return init
 
