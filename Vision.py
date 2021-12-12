@@ -250,7 +250,7 @@ def printGlobalPath(path, image):
     for i in range(0,len(path)-1):
         cv2.line(image, (round(path[i][0]), round(path[i][1])),(round(path[i+1][0]), round(path[i+1][1])), (0,255,0), lineThickness)
 
-def initialisation(pic):
+def initialization(pic):
     #obstacle detection
     polygons=obstacle_detection(pic)
     #Start and goal detection
