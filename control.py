@@ -12,6 +12,7 @@ l=48
 kp=25   #>0
 ka=50  # > kp
 kb=-0.0001 #<0
+thresh_far=300
 thresh_close2=10
 thresh_close1=75
 comm_sat_min=100
@@ -54,6 +55,8 @@ def astolfi(actual_pos, goal_pos, actual_angle, node):
     alpha=-actual_angle + np.arctan2(-delta[1],delta[0])
     beta=-actual_angle-alpha
     v=kp*pho
+    if(pho>thresh_far):
+        v=comm_sat_max*r
     if(pho<thresh_close1):
         v=comm_sat_min*r
     if(pho<thresh_close2):
