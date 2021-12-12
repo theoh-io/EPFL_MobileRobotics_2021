@@ -8,19 +8,16 @@ from shapely.geometry import Polygon, Point, LineString
 margin=40
 
 def plot_geometric_data(g):
-    print(g,"\n")
     g.plot('Reds') 
 
 def obstacles_to_polygons(list_obstacles):
-    
-    # Convert list of obstacles (list of vectors) to list of geometric polygons 
+    # Convert this polygone list into a geometric set of polygons
     list_polygons = []
     for obstacle in list_obstacles:
         list_polygons.append(Polygon(obstacle))
     
     # Create Geometric graph of the obstacles as given by the vision analysis
     g = GeoSeries(list_polygons)
-    
     return g
 
 
@@ -43,17 +40,13 @@ def polygons_to_VisibilityGraph(g):
     visgraph = vg.VisGraph()
     visgraph.build(polygons)
     
-    print("\nVisibility graph points: ", polygons,"\n")
-    
     return visgraph
 
 def save_VisibilityGraph(visgraph,visgraph_name):
     visgraph.save(visgraph_name)
 
 def point_to_VisibilityGraph(point):
-    #example vg.Point(0.0, 0.0)
     point = vg.Point(point[0],point[1])
-    
     return point
 
     
@@ -71,9 +64,7 @@ def path_distance(shortest_path):
     prev_point = shortest_path[0]
     for point in shortest_path[1:]:
         path_distance += math.sqrt(pow(point.x - prev_point.x, 2)+pow(point.y - prev_point.y, 2))
-        prev_point = point
-    print('Shortest path distance: {}'.format(path_distance),"\n")
-    
+        prev_point = point 
     return path_distance
 
 def ShortestPath_to_geometric(shortest_path):
@@ -97,24 +88,25 @@ def geometric_path_to_vector(path):
 
 def global_pathplanning(start_point,end_point,list_obstacles):
     
-    g = obstacles_to_polygons(list_obstacles)
-    #plot_geometric_data(g)
-
-    g = polygons_add_margin(g)
-    #plot_geometric_data(g)
-
-    visgraph = polygons_to_VisibilityGraph(g)
-
-    shortest_path = VisibilityGraph_shortest_path(visgraph, start_point, end_point)
-
-    distance = path_distance(shortest_path)
-
-    path = ShortestPath_to_geometric(shortest_path)
-    g = g.geometry.append(path.geometry)
-
-    #plot_geometric_data(path)
-    plot_geometric_data(g)
-    print("path ", path)
+    #convert polygone list into a geometric set and add margin
+    g_without_margin = obstacles_to_polygons(list_obstacles)
+    g = polygons_add_margin(g_without_margin)
     
+    #Visibility graph shortest path algorithm
+    visgraph = polygons_to_VisibilityGraph(g)
+    shortest_path = VisibilityGraph_shortest_path(visgraph, start_point, end_point)
+    distance = path_distance(shortest_path)
+    
+    #convert shortest path into a geometric data
+    path = ShortestPath_to_geometric(shortest_path)
+    
+    #plot the geometric data set with both the path and the obstacles
+    g = g.geometry.append(g_without_margin.geometry)
+    g = g.geometry.append(path.geometry)
+    plot_geometric_data(g)
+   
+    #convert the geometric path into a vector for the control
     path=geometric_path_to_vector(path)
+    
     return path
+
