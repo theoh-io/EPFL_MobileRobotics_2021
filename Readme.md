@@ -25,7 +25,7 @@ For the implementation: the image of the experimental environment is first captu
 | Local Navigation                   | ![](./pics/localNav.gif)    |
 | Navigation with Kalman             | ![](./pics/aveugle.gif)    |
 
-**The demo video is available at [`MobileRob_Demo_Video.mp4`](add path).**
 
-**The demo video is available at [https://www.youtube.com/watch?v=Man3UVuFPOw](add path).**
+
+**The demo video is available on Youtube [Video Demo](https://www.youtube.com/watch?v=Man3UVuFPOw).**
 
