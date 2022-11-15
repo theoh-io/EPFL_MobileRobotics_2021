@@ -11,19 +11,27 @@ import time
 #tuning parameters
 #corners
 iterations_erode=4
-area_size=70 #used for corner detections
+area_size=10 #used for corner detections
 #obstacles
 area_obst_min=500
 area_obst_max=30000
 thresh_low=90
 thresh_up=255
 #color ranges
-green_lower=np.array([45,40,30])
+#green_lower=np.array([30,40,40])
+#green_upper=np.array([80,255,255])
+green_lower=np.array([40,40,40])
 green_upper=np.array([90,255,255])
-red_lower=np.array([170,50,50])
-red_upper=np.array([240,255,255])
-yellow_lower=np.array([10,30,30])
-yellow_upper=np.array([40,255,255])
+#red_lower=np.array([170,50,50])
+#red_upper=np.array([240,255,255])
+red_lower=np.array([0,30,30])
+red_upper=np.array([15,255,255])
+red_lower2=np.array([170,30,30])
+red_upper2=np.array([180,255,255])
+#yellow_lower=np.array([10,30,30])
+#yellow_upper=np.array([120,255,255])
+yellow_lower=np.array([25,20,20])
+yellow_upper=np.array([35,255,255])
 
 
 def order_points(pts):
@@ -82,11 +90,12 @@ def detectThymio(image):
     mask = cv2.dilate(mask, None, iterations = nb_iterations)
     #Apply the mask to find the contours of the two yellow circle
     elements,_ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    
+    plt.imshow(mask)
+    print(len(elements))
     #Find the center of both circles using cv2.minEnclosingCircle
     if (len(elements) == 2):
         #sorting the detected contours by descending area size
-        elements.sort(key=cv2.contourArea, reverse=True)
+        list(elements).sort(key=cv2.contourArea, reverse=True)
         #finding the big circle
         c0=elements[0]
         ((x,y),rayon) = cv2.minEnclosingCircle(c0)
@@ -105,19 +114,19 @@ def detectThymio(image):
 def detectGoal(image):
     coord = []
     coord = [0,0]
-    nb_iterations=1
+    nb_iterations=4
     
     img_hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
     mask = cv2.inRange(img_hsv, red_lower, red_upper)
+    mask += cv2.inRange(img_hsv, red_lower2, red_upper2)
     mask = cv2.erode(mask, None, iterations = nb_iterations)
     mask = cv2.dilate(mask, None, iterations = nb_iterations)
     elements,_ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    
     if len(elements) > 0:
         for i in range(0,len(elements)):
             c = elements[i] 
             ((x,y),rayon) = cv2.minEnclosingCircle(c)
-            coord = [x,y]
+            coord = [int(x),int(y)]
     return coord
 
 def angle_between(pts):
